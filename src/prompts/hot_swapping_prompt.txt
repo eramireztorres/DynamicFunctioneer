@@ -1,0 +1,162 @@
+You are an expert Python programmer. Your task is to improve the provided function or method based on the execution context and optimization goals. Follow these rules:
+1. Retain the original functionality as described in the docstring and inline comments.
+2. Focus on improving efficiency, readability, and maintainability.
+3. Address specific performance bottlenecks or redundant operations based on the execution context.
+4. Do not include import statements. Assume required imports are handled externally.
+
+## Input Placeholders:
+- {code}: The current version of the function or method to be improved.
+- {execution_context}: Information about how the function is called, including input arguments, frequency of execution, or edge cases.
+- {hot_swap_condition}: The condition that triggered the hot-swapping process.
+
+## Output:
+- The optimized function or method implementation.
+
+---
+
+### Example 1: General Python Programming
+code:
+def calculate_average(numbers):
+    """
+    Calculates the average of a list of numbers.
+
+    Args:
+        numbers (list of float): A list of numeric values.
+
+    Returns:
+        float: The average of the list.
+    """
+    if not numbers:
+        return 0.0
+    return sum(numbers) / len(numbers)
+execution_context:
+- Input is frequently an empty list, resulting in a return value of `0.0`.
+- Function is called repeatedly with large lists.
+hot_swap_condition:
+The average calculation should be optimized for lists with more than 1,000 elements.
+
+---
+
+### Optimized Implementation:
+def calculate_average(numbers):
+    """
+    Calculates the average of a list of numbers.
+
+    Args:
+        numbers (list of float): A list of numeric values.
+
+    Returns:
+        float: The average of the list.
+    """
+    # Return early for an empty list
+    if not numbers:
+        return 0.0
+
+    # Use a generator expression for memory efficiency on large lists
+    total = sum(n for n in numbers)
+    return total / len(numbers)
+
+---
+
+### Example 2: Machine Learning with Scikit-learn
+code:
+def train_decision_tree(X, y):
+    """
+    Trains a decision tree classifier.
+
+    Args:
+        X (numpy.ndarray): Feature matrix.
+        y (numpy.ndarray): Target labels.
+
+    Returns:
+        sklearn.tree.DecisionTreeClassifier: The trained decision tree model.
+    """
+    from sklearn.tree import DecisionTreeClassifier
+    model = DecisionTreeClassifier()
+    model.fit(X, y)
+    return model
+execution_context:
+- Input dataset often has highly imbalanced target labels.
+- Training time is critical for real-time model updates.
+hot_swap_condition:
+Optimize the decision tree for faster training and better handling of class imbalance.
+
+---
+
+### Optimized Implementation:
+def train_decision_tree(X, y):
+    """
+    Trains a decision tree classifier.
+
+    Args:
+        X (numpy.ndarray): Feature matrix.
+        y (numpy.ndarray): Target labels.
+
+    Returns:
+        sklearn.tree.DecisionTreeClassifier: The trained decision tree model.
+    """
+    from sklearn.tree import DecisionTreeClassifier
+    from sklearn.utils.class_weight import compute_class_weight
+    import numpy as np
+
+    # Compute class weights for balancing
+    classes = np.unique(y)
+    class_weights = compute_class_weight('balanced', classes=classes, y=y)
+
+    # Train the decision tree with class weights
+    model = DecisionTreeClassifier(class_weight=dict(zip(classes, class_weights)))
+    model.fit(X, y)
+    return model
+
+---
+
+### Example 3: Web Programming with Reflex
+code:
+def create_signup_form():
+    """
+    Creates a signup form using Reflex.
+
+    Returns:
+        rx.Component: A Reflex component for the signup form.
+    """
+    return rx.card(
+        rx.vstack(
+            rx.text("Email", size="3"),
+            rx.input(placeholder="Enter your email", type="email"),
+            rx.text("Password", size="3"),
+            rx.input(placeholder="Enter your password", type="password"),
+            rx.button("Register", size="3"),
+            spacing="4",
+        )
+    )
+execution_context:
+- Form fields frequently require client-side validation.
+- Button should be disabled until all fields are valid.
+hot_swap_condition:
+Improve form usability by adding client-side validation and disabling the button when fields are empty.
+
+---
+
+### Optimized Implementation:
+def create_signup_form():
+    """
+    Creates a signup form using Reflex.
+
+    Returns:
+        rx.Component: A Reflex component for the signup form.
+    """
+    return rx.card(
+        rx.vstack(
+            rx.text("Email", size="3"),
+            rx.input(placeholder="Enter your email", type="email", on_change=State.validate_email),
+            rx.text("Password", size="3"),
+            rx.input(placeholder="Enter your password", type="password", on_change=State.validate_password),
+            rx.button(
+                "Register",
+                size="3",
+                is_disabled=not State.is_form_valid,
+                on_click=State.submit_form,
+            ),
+            spacing="4",
+        )
+    )

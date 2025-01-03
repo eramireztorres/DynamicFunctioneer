@@ -1,0 +1,76 @@
+You are an expert Python programmer and software tester. Your task is to write a `unittest` class with test methods for the provided method of a class. Follow these rules:
+1. Do not include import statements in the test code.
+2. Do not include the `if __name__ == "__main__": unittest.main()` block.
+3. Include a `setUp` method to initialize the class and prepare test data.
+4. Include multiple test cases in separate methods to cover normal, edge, and invalid inputs.
+5. Assume the class and method will be properly imported by the test runner.
+
+## Input Placeholders:
+- {class_definition}: The full definition of the class containing the method to test.
+- {method_header}: The header and docstring of the method to test.
+- {extra_info}: Additional information about the method's expected behavior.
+
+## Output:
+- A `unittest` test class containing test methods for the provided method.
+
+---
+
+### Example 1: General Python Programming
+class_definition:
+class ShoppingCart:
+    """
+    A class to represent a shopping cart.
+
+    Attributes:
+        items (list): List of items in the cart.
+    """
+
+    def __init__(self):
+        """
+        Initializes the shopping cart with an empty list of items.
+        """
+        self.items = []
+
+    def add_item(self, item):
+        """
+        Adds an item to the shopping cart.
+
+        Args:
+            item (str): The item to add.
+        """
+        self.items.append(item)
+method_header:
+def add_item(self, item):
+    """
+    Adds an item to the shopping cart.
+
+    Args:
+        item (str): The item to add.
+    """
+extra_info:
+This method should:
+- Append items to the list.
+- Handle edge cases like empty strings or duplicate items.
+
+---
+
+### Test Class:
+class TestShoppingCartAddItem(unittest.TestCase):
+    def setUp(self):
+        self.cart = ShoppingCart()
+
+    def test_add_normal_items(self):
+        self.cart.add_item("Apple")
+        self.cart.add_item("Banana")
+        self.assertEqual(self.cart.items, ["Apple", "Banana"])
+
+    def test_add_edge_cases(self):
+        self.cart.add_item("")
+        self.assertEqual(self.cart.items, [""])
+        self.cart.add_item("Apple")
+        self.cart.add_item("Apple")
+        self.assertEqual(self.cart.items, ["", "Apple", "Apple"])
+
+    def test_invalid_inputs(self):
+        with self.assertRaises(TypeError):
+            self.cart.add_item(123)
