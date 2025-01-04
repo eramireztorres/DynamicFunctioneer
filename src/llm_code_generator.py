@@ -1,15 +1,92 @@
 import logging
 import time
 from pathlib import Path
+import inspect
 from prompt_manager import PromptManager
 from model_api_factory import ModelAPIFactory
+import ast
+
+def extract_function_signature(func_or_source):
+    """
+    Extracts the function signature and docstring from a function object or its source string.
+
+    Args:
+        func_or_source (function or str): The function object or its source as a string.
+
+    Returns:
+        str: The cleaned function signature with its docstring.
+
+    Raises:
+        ValueError: If the function signature cannot be extracted.
+    """
+    if isinstance(func_or_source, str):
+        source = func_or_source
+    else:
+        try:
+            source = inspect.getsource(func_or_source)
+        except Exception as e:
+            raise ValueError(f"Failed to retrieve source for the function: {e}")
+
+    # Remove decorators while keeping the function header and docstring
+    source_lines = source.splitlines()
+    cleaned_lines = []
+    in_function = False
+
+    for line in source_lines:
+        if line.strip().startswith("def "):  # Start of the function
+            in_function = True
+        if in_function:
+            cleaned_lines.append(line)
+
+    if not cleaned_lines:
+        raise ValueError("No valid function definition found.")
+
+    return "\n".join(cleaned_lines)
+
+
+def extract_method_signature(class_definition, method_name):
+    """
+    Extracts the method signature from a class definition using AST,
+    ensuring the result starts with `def` and includes the docstring.
+
+    Args:
+        class_definition (str): The full class source code as a string.
+        method_name (str): The name of the method to extract.
+
+    Returns:
+        str: The cleaned method signature starting with `def` and including the docstring.
+
+    Raises:
+        ValueError: If the method cannot be extracted.
+    """
+    try:
+        tree = ast.parse(class_definition)
+    except SyntaxError as e:
+        raise ValueError(f"Failed to parse class definition: {e}")
+
+    for node in tree.body:
+        if isinstance(node, ast.ClassDef):
+            for item in node.body:
+                if isinstance(item, ast.FunctionDef) and item.name == method_name:
+                    # Use ast.unparse for full method extraction
+                    try:
+                        method_source = ast.unparse(item).strip()
+                    except AttributeError:
+                        raise ValueError("The `ast.unparse` function is unavailable in your Python version.")
+                    return method_source
+
+    raise ValueError(f"Could not extract method signature for '{method_name}'.")
+
+
+
+
 
 class LLMCodeGenerator:
     """
     Manages interactions with the LLM to generate or improve function/method code.
     """
 
-    def __init__(self, model_provider="openai", model="gpt-4", prompt_dir="prompts"):
+    def __init__(self, model_provider=None, model="gpt-4", prompt_dir="prompts"):
         """
         Initialize the LLMCodeGenerator.
 
@@ -56,42 +133,51 @@ class LLMCodeGenerator:
 
         raise RuntimeError(f"Failed to generate code after {retries} attempts.")
 
+   
     def initial_code_generation(self, function_header, docstring, extra_info=""):
         """
         Generates initial code for a function/method.
-
+    
         Args:
             function_header (str): The header of the function/method.
             docstring (str): The docstring describing the function/method.
             extra_info (str): Additional context for the LLM.
-
+    
         Returns:
             str: The generated code.
         """
+        # Extract the function signature using AST
+        cleaned_function_header = extract_function_signature(function_header)
+    
         placeholders = {
-            "function_header": function_header,
+            "function_header": cleaned_function_header,
             "extra_info": extra_info
         }
         return self.generate_code("default_function_prompt.txt", placeholders)
 
+
     def method_code_generation(self, class_definition, method_header, extra_info=""):
         """
         Generates initial code for a method.
-
+    
         Args:
             class_definition (str): The full class definition with the `__init__` method.
             method_header (str): The header of the method to be generated.
             extra_info (str): Additional context for the LLM.
-
+    
         Returns:
             str: The generated method code.
         """
+        # Extract the method signature using AST
+        cleaned_method_header = extract_method_signature(class_definition, method_header)
+    
         placeholders = {
             "class_definition": class_definition,
-            "method_header": method_header,
+            "method_header": cleaned_method_header,
             "extra_info": extra_info
         }
         return self.generate_code("default_method_prompt.txt", placeholders)
+
 
     def fix_runtime_error(self, current_code, error_message):
         """

@@ -426,24 +426,24 @@ class HotSwapExecutor:
 
 
 
-# Initialize components
-code_manager = DynamicCodeManager("dynamic_function.py")
-llm_generator = LLMCodeGenerator(model_provider="openai", model="gpt-4")
+# # Initialize components
+# code_manager = DynamicCodeManager("dynamic_function.py")
+# llm_generator = LLMCodeGenerator(model_provider="openai", model="gpt-4")
 
-# Initialize HotSwapExecutor
-executor = HotSwapExecutor(code_manager, llm_generator)
+# # Initialize HotSwapExecutor
+# executor = HotSwapExecutor(code_manager, llm_generator)
 
 
-executor.execute_workflow(
-    function_name="calculate_average",
-    test_code="""
-class TestCalculateAverage(unittest.TestCase):
-    def test_normal_cases(self):
-        self.assertEqual(calculate_average([1, 2, 3]), 2.0)
+# executor.execute_workflow(
+#     function_name="calculate_average",
+#     test_code="""
+# class TestCalculateAverage(unittest.TestCase):
+#     def test_normal_cases(self):
+#         self.assertEqual(calculate_average([1, 2, 3]), 2.0)
 
-if __name__ == "__main__":
-    unittest.main()
-""",
-    error_message="ZeroDivisionError: division by zero"
-)
+# if __name__ == "__main__":
+#     unittest.main()
+# """,
+#     error_message="ZeroDivisionError: division by zero"
+# )
 
