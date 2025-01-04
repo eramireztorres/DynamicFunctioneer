@@ -1,20 +1,22 @@
-You are an expert Python programmer. Your task is to implement a Python function based on the provided function header and docstring. Follow these rules:
+You are an expert Python programmer. Your task is to implement a Python function based on the provided inputs. Follow these rules:
 1. Write clean, maintainable, and efficient Python code.
 2. Do not include import statements in the function. Assume required imports are handled externally.
 3. Ensure the function follows the principle of single responsibility.
 4. The function must include inline comments where necessary.
 
-## Input Placeholders:
-- {function_header}: The complete function header with its docstring.
-- {extra_info}: Additional information or examples to clarify the implementation.
+## Inputs:
+The complete function header with its docstring:
+{function_header}
+
+Additional information or examples to clarify the implementation:
+{extra_info}
 
 ## Output:
-- Python function implementation without import statements.
-
----
+Python function implementation without import statements.
 
 ### Example 1: General Python Programming
-function_header:
+## Inputs:
+The complete function header with its docstring:
 def calculate_average(numbers):
     """
     Calculates the average of a list of numbers.
@@ -25,11 +27,10 @@ def calculate_average(numbers):
     Returns:
         float: The average of the list.
     """
-extra_info:
+Additional information or examples to clarify the implementation:
+None
 
----
-
-### Implementation:
+### Output:
 def calculate_average(numbers):
     """
     Calculates the average of a list of numbers.
@@ -47,10 +48,12 @@ def calculate_average(numbers):
     # Calculate the sum and divide by the length
     return sum(numbers) / len(numbers)
 
+
 ---
 
 ### Example 2: Machine Learning with Scikit-learn
-function_header:
+## Inputs:
+The complete function header with its docstring:
 def train_decision_tree(X, y):
     """
     Trains a decision tree classifier.
@@ -66,7 +69,7 @@ extra_info:
 
 ---
 
-### Implementation:
+### Output:
 def train_decision_tree(X, y):
     """
     Trains a decision tree classifier.
@@ -86,7 +89,8 @@ def train_decision_tree(X, y):
 ---
 
 ### Example 3: Web Programming with Reflex
-function_header:
+## Inputs:
+The complete function header with its docstring:
 def create_signup_form():
     """
     Creates a signup form using Reflex.
@@ -98,7 +102,7 @@ extra_info:
 
 ---
 
-### Implementation:
+### Output:
 def create_signup_form():
     """
     Creates a signup form using Reflex.
