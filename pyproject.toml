@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dynamic_functioneer"
+version = "0.1.0"
+description = "A Python package for dynamic function and method handling with LLM support."
+authors = [
+    { name = "Erick Eduardo Ramirez Torres", email = "erickeduardoramireztorres@gmail.com" }
+]
+readme = "README.md"
+license = { text = "MIT" }
+keywords = ["dynamic", "methods", "functions", "LLM", "hot-swapping"]
+dependencies = ["astunparse", "uv"]
+optional-dependencies = { dev = ["pytest>=6.0", "pytest-cov", "black", "flake8", "mypy"], docs = ["sphinx", "sphinx-rtd-theme"] }
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent"
+]
+scripts = { dynamic-cli = "dynamic_functioneer.cli:main" }
+
+[tool.setuptools.packages.find]
+include = ["dynamic_functioneer*"]
+exclude = ["tests", "examples"]
+
+
