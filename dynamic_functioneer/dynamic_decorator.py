@@ -498,27 +498,27 @@ def dynamic_function(
 
 
 # # @elapsedTimeDecorator()
-# @dynamic_function(
-#     model="gpt-4o",
-#     # prompt="custom_prompt.txt",
-#     hs_condition="len(numbers) > 1000",
-#     execution_context={"frequent_inputs": [[], [1, 2, 3]]},
-#     keep_ok_version=True
-# )
-# def calculate_average(numbers):
-#     """
-#     Calculates the average of a list of numbers.
+@dynamic_function(
+    model="meta-llama/llama-3.2-3b-instruct:free",
+    # prompt="custom_prompt.txt",
+    # hs_condition="len(numbers) > 1000",
+    # execution_context={"frequent_inputs": [[], [1, 2, 3]]},
+    # keep_ok_version=True
+)
+def calculate_average(numbers):
+    """
+    Calculates the average of a list of numbers.
 
-#     Args:
-#         numbers (list of float): A list of numeric values.
+    Args:
+        numbers (list of float): A list of numeric values.
 
-#     Returns:
-#         float: The average of the list.
-#     """
-#     pass
+    Returns:
+        float: The average of the list.
+    """
+    pass
 
 
-# print(calculate_average([1, 3, 7]))
+print(calculate_average([1, 3, 7]))
 
 # print(calculate_average([3.3]*2000))
 
@@ -543,38 +543,38 @@ def dynamic_function(
 
 # print(d_calculate_average([1, 3, 7]))
 
-class Inventory:
-    def __init__(self):
-        """
-        Initializes the inventory with an empty stock dictionary.
-        """
-        self.stock = {}
+# class Inventory:
+#     def __init__(self):
+#         """
+#         Initializes the inventory with an empty stock dictionary.
+#         """
+#         self.stock = {}
 
-    @dynamic_function()
-    def update_stock(self, product, quantity):
-        """
-        Updates the stock for a product.
+#     @dynamic_function()
+#     def update_stock(self, product, quantity):
+#         """
+#         Updates the stock for a product.
 
-        Args:
-            product (str): The name of the product.
-            quantity (int): The quantity to add (positive) or remove (negative).
+#         Args:
+#             product (str): The name of the product.
+#             quantity (int): The quantity to add (positive) or remove (negative).
 
-        Raises:
-            ValueError: If quantity is negative and results in stock below zero.
-        """
-        pass
+#         Raises:
+#             ValueError: If quantity is negative and results in stock below zero.
+#         """
+#         pass
 
-# Example Usage
-inventory = Inventory()
+# # Example Usage
+# inventory = Inventory()
 
-# Add new product
-inventory.update_stock("apple", 50)
+# # Add new product
+# inventory.update_stock("apple", 50)
 
-# # # # Reduce stock
-# # # inventory.update_stock("apple", -20)
+# # # # # Reduce stock
+# # # # inventory.update_stock("apple", -20)
 
-# # # # Attempt invalid operation (should trigger dynamic fixing)
-# # # inventory.update_stock("apple", -40)
+# # # # # Attempt invalid operation (should trigger dynamic fixing)
+# # # # inventory.update_stock("apple", -40)
 
 
 # # @elapsedTimeDecorator()

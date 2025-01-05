@@ -1,0 +1,220 @@
+runfile('C:/Users/Erick/trabajo/repo/DynamicFunctioneer/src/dynamic_decorator.py', wdir='C:/Users/Erick/trabajo/repo/DynamicFunctioneer/src')
+INFO:root:Generating initial code for function calculate_average...
+INFO:root:Rendered Prompt Sent to LLM:
+You are an expert Python programmer. Your task is to implement a Python function based on the provided function header and docstring. Follow these rules:
+1. Write clean, maintainable, and efficient Python code.
+2. Do not include import statements in the function. Assume required imports are handled externally.
+3. Ensure the function follows the principle of single responsibility.
+4. The function must include inline comments where necessary.
+
+## Input Placeholders:
+- def calculate_average(numbers):
+    """
+    Calculates the average of a list of numbers.
+
+    Args:
+        numbers (list of float): A list of numeric values.
+
+    Returns:
+        float: The average of the list.
+    """
+    pass: The complete function header with its docstring.
+- None: Additional information or examples to clarify the implementation.
+
+## Output:
+- Python function implementation without import statements.
+
+---
+
+### Example 1: General Python Programming
+function_header:
+def calculate_average(numbers):
+    """
+    Calculates the average of a list of numbers.
+
+    Args:
+        numbers (list of float): A list of numeric values.
+
+    Returns:
+        float: The average of the list.
+    """
+extra_info:
+
+---
+
+### Implementation:
+def calculate_average(numbers):
+    """
+    Calculates the average of a list of numbers.
+
+    Args:
+        numbers (list of float): A list of numeric values.
+
+    Returns:
+        float: The average of the list.
+    """
+    # Ensure the list is not empty
+    if not numbers:
+        return 0.0
+
+    # Calculate the sum and divide by the length
+    return sum(numbers) / len(numbers)
+
+---
+
+### Example 2: Machine Learning with Scikit-learn
+function_header:
+def train_decision_tree(X, y):
+    """
+    Trains a decision tree classifier.
+
+    Args:
+        X (numpy.ndarray): Feature matrix.
+        y (numpy.ndarray): Target labels.
+
+    Returns:
+        sklearn.tree.DecisionTreeClassifier: The trained decision tree model.
+    """
+extra_info:
+
+---
+
+### Implementation:
+def train_decision_tree(X, y):
+    """
+    Trains a decision tree classifier.
+
+    Args:
+        X (numpy.ndarray): Feature matrix.
+        y (numpy.ndarray): Target labels.
+
+    Returns:
+        sklearn.tree.DecisionTreeClassifier: The trained decision tree model.
+    """
+    from sklearn.tree import DecisionTreeClassifier  # This is managed externally
+    model = DecisionTreeClassifier()
+    model.fit(X, y)
+    return model
+
+---
+
+### Example 3: Web Programming with Reflex
+function_header:
+def create_signup_form():
+    """
+    Creates a signup form using Reflex.
+
+    Returns:
+        rx.Component: A Reflex component for the signup form.
+    """
+extra_info:
+
+---
+
+### Implementation:
+def create_signup_form():
+    """
+    Creates a signup form using Reflex.
+
+    Returns:
+        rx.Component: A Reflex component for the signup form.
+    """
+    import reflex as rx  # This is managed externally
+
+    return rx.card(
+        rx.vstack(
+            rx.text("Email", size="3"),
+            rx.input(placeholder="Enter your email", type="email"),
+            rx.text("Password", size="3"),
+            rx.input(placeholder="Enter your password", type="password"),
+            rx.button("Register", size="3"),
+            spacing="4",
+        )
+    )
+
+INFO:root:Sending prompt to LLM (attempt 1/3)
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:root:Code generated successfully.
+Starting response cleaning process.
+Raw LLM response:
+```python
+def calculate_average(numbers):
+    """
+    Calculates the average of a list of numbers.
+
+    Args:
+        numbers (list of float): A list of numeric values.
+
+    Returns:
+        float: The average of the list.
+    """
+    # Ensure the list is not empty to avoid division by zero
+    if not numbers:
+        return 0.0
+
+    # Calculate the sum of all numbers and divide by the number of elements
+    total_sum = sum(numbers)
+    count = len(numbers)
+    
+    # Return the average value
+    return total_sum / count
+```
+
+This implementation of the `calculate_average` function ensures that the list is not empty before performing the division, thus preventing a division by zero error. It calculates the total sum of the numbers and divides it by the count of the numbers to get the average. The function is straightforward and follows the principle of single responsibility by focusing solely on calculating the average of the given list.
+Extracted Python code block successfully.
+Extracted code block:
+['def calculate_average(numbers):', '    """', '    Calculates the average of a list of numbers.', '', '    Args:', '        numbers (list of float): A list of numeric values.', '', '    Returns:', '        float: The average of the list.', '    """', '    # Ensure the list is not empty to avoid division by zero', '    if not numbers:', '        return 0.0', '', '    # Calculate the sum of all numbers and divide by the number of elements', '    total_sum = sum(numbers)', '    count = len(numbers)', '    ', '    # Return the average value', '    return total_sum / count']
+Cleaned code after processing:
+def calculate_average(numbers):
+    """
+    Calculates the average of a list of numbers.
+    Args:
+        numbers (list of float): A list of numeric values.
+    Returns:
+        float: The average of the list.
+    """
+    # Ensure the list is not empty to avoid division by zero
+    if not numbers:
+        return 0.0
+    # Calculate the sum of all numbers and divide by the number of elements
+    total_sum = sum(numbers)
+    count = len(numbers)
+    # Return the average value
+    return total_sum / count
+SyntaxError encountered during validation: expected an indented block after function definition on line 1 (<unknown>, line 2)
+No valid Python code could be extracted after cleaning.
+Traceback (most recent call last):
+
+  File ~\trabajo\repo\DynamicFunctioneer\src\llm_response_cleaner.py:85 in clean_response
+    return LLMResponseCleaner.validate_code(cleaned_code)
+
+  File ~\trabajo\repo\DynamicFunctioneer\src\llm_response_cleaner.py:48 in validate_code
+    ast.parse(cleaned_response)
+
+  File ~\anaconda3\Lib\ast.py:50 in parse
+    return compile(source, filename, mode, flags,
+
+  File <unknown>:2
+    """
+    ^
+IndentationError: expected an indented block after function definition on line 1
+
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+
+  File ~\anaconda3\Lib\site-packages\spyder_kernels\py3compat.py:356 in compat_exec
+    exec(code, globals, locals)
+
+  File c:\users\erick\trabajo\repo\dynamicfunctioneer\src\dynamic_decorator.py:571
+    print(calculate_average([1, 3, 7]))
+
+  File c:\users\erick\trabajo\repo\dynamicfunctioneer\src\dynamic_decorator.py:179 in function_wrapper
+    cleaned_code = LLMResponseCleaner.clean_response(function_code)
+
+  File ~\trabajo\repo\DynamicFunctioneer\src\llm_response_cleaner.py:88 in clean_response
+    raise ValueError("Failed to clean the LLM response: No valid code found.")
+
+ValueError: Failed to clean the LLM response: No valid code found.
+

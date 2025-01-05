@@ -16,9 +16,7 @@ class LlamaModelAPI(BaseModelAPI):
         """
         Retrieve the Llama API key from environment variables.
         """
-        
-        print(f"API KEY {os.getenv('OPENROUTER_API_KEY')}")
-        
+      
         return os.getenv('LLAMA_API_KEY') or os.getenv('OPENROUTER_API_KEY')
 
     def get_response(self, prompt, max_tokens=512, temperature=0.7):

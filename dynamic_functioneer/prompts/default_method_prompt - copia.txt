@@ -1,0 +1,144 @@
+You are an expert Python programmer. Your task is to implement a Python method for a class based on the provided class definition, method header, and docstring. Follow these rules:
+1. Write clean, maintainable, and efficient Python code.
+2. Do not include import statements in the method. Assume required imports are handled externally.
+3. Ensure the method follows the principle of single responsibility.
+4. Use attributes from the class constructor (`__init__`) wherever applicable.
+5. The method must include inline comments where necessary.
+
+## Input Placeholders:
+- {class_definition}: The complete class definition with docstrings, including the `__init__` method implementation.
+- {method_header}: The header and docstring for the method to be implemented.
+- {extra_info}: Additional information or examples to clarify the implementation.
+
+## Output:
+- Python method implementation without import statements.
+
+---
+
+### Example 1: General Python Programming
+class_definition:
+class ShoppingCart:
+    """
+    A class to represent a shopping cart.
+
+    Attributes:
+        items (list): List of items in the cart.
+    """
+
+    def __init__(self):
+        """
+        Initializes the shopping cart with an empty list of items.
+        """
+        self.items = []
+method_header:
+def add_item(self, item):
+    """
+    Adds an item to the shopping cart.
+
+    Args:
+        item (str): The item to add.
+    """
+extra_info:
+
+---
+
+### Implementation:
+def add_item(self, item):
+    """
+    Adds an item to the shopping cart.
+
+    Args:
+        item (str): The item to add.
+    """
+    # Append the item to the list of items
+    self.items.append(item)
+
+---
+
+### Example 2: Machine Learning with Scikit-learn
+class_definition:
+class MLModel:
+    """
+    A class to represent a machine learning model.
+
+    Attributes:
+        model (object): The ML model instance.
+        trained (bool): Whether the model is trained.
+    """
+
+    def __init__(self, model):
+        """
+        Initializes the MLModel with the given model.
+
+        Args:
+            model (object): An instance of an ML model.
+        """
+        self.model = model
+        self.trained = False
+method_header:
+def train(self, X, y):
+    """
+    Trains the model using the provided data.
+
+    Args:
+        X (numpy.ndarray): Feature matrix.
+        y (numpy.ndarray): Target labels.
+    """
+extra_info:
+
+---
+
+### Implementation:
+def train(self, X, y):
+    """
+    Trains the model using the provided data.
+
+    Args:
+        X (numpy.ndarray): Feature matrix.
+        y (numpy.ndarray): Target labels.
+    """
+    # Fit the model and mark it as trained
+    self.model.fit(X, y)
+    self.trained = True
+
+---
+
+### Example 3: Web Programming with Reflex
+class_definition:
+class SignupForm:
+    """
+    A class to represent a signup form in a web application.
+
+    Attributes:
+        username (str): The username entered by the user.
+        password (str): The password entered by the user.
+    """
+
+    def __init__(self):
+        """
+        Initializes the SignupForm with empty fields.
+        """
+        self.username = ""
+        self.password = ""
+method_header:
+def validate(self):
+    """
+    Validates the username and password.
+
+    Returns:
+        bool: True if both fields are non-empty, False otherwise.
+    """
+extra_info:
+
+---
+
+### Implementation:
+def validate(self):
+    """
+    Validates the username and password.
+
+    Returns:
+        bool: True if both fields are non-empty, False otherwise.
+    """
+    # Check that both username and password are not empty
+    return bool(self.username and self.password)
