@@ -1,5 +1,5 @@
-from openai_model_api import OpenAIModelAPI
-from llama_model_api import LlamaModelAPI
+from dynamic_functioneer.openai_model_api import OpenAIModelAPI
+from dynamic_functioneer.llama_model_api import LlamaModelAPI
 
 class ModelAPIFactory:
     """

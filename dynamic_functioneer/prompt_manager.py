@@ -6,7 +6,7 @@ class PromptManager:
     Manages the loading and rendering of prompt templates.
     """
 
-    def __init__(self, prompts_path="src/prompts"):
+    def __init__(self, prompts_path="./dynamic_functioneer/prompts"):
         """
         Initializes the PromptManager with the path to the prompt files.
 
@@ -28,11 +28,16 @@ class PromptManager:
         Raises:
             FileNotFoundError: If the specified prompt file does not exist.
         """
-        prompt_file = self.prompts_path / prompt_name
-        if not prompt_file.exists():
-            raise FileNotFoundError(f"Prompt file '{prompt_name}' not found in {self.prompts_path}")
-        with open(prompt_file, "r") as file:
-            return file.read()
+        prompt_file = os.path.join(self.prompts_path, prompt_name)
+        
+        print(f'prompt_file: {prompt_file}')
+        
+        try:
+            with open(prompt_file, "r") as file:
+                return file.read()
+        except Exception as e:
+            print(f"Prompt file '{prompt_name}' not found in {self.prompts_path}. Exception: {e}")
+            
 
     def render_prompt(self, template, placeholders):
         """

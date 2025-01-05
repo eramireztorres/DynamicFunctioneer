@@ -1,9 +1,9 @@
 import logging
-from dynamic_code_manager import DynamicCodeManager
-from llm_code_generator import LLMCodeGenerator
-from boilerplate_manager import BoilerplateManager
 from textwrap import dedent
-from llm_response_cleaner import LLMResponseCleaner
+from dynamic_functioneer.dynamic_code_manager import DynamicCodeManager
+from dynamic_functioneer.llm_code_generator import LLMCodeGenerator
+from dynamic_functioneer.boilerplate_manager import BoilerplateManager
+from dynamic_functioneer.llm_response_cleaner import LLMResponseCleaner
 
 class HotSwapExecutor:
     """

@@ -1,6 +1,6 @@
 import os
 import requests
-from base_model_api import BaseModelAPI
+from dynamic_functioneer.base_model_api import BaseModelAPI
 
 class LlamaModelAPI(BaseModelAPI):
     """

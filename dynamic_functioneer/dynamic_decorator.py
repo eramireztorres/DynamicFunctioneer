@@ -1,14 +1,13 @@
 import functools
 import logging
 import inspect
-from dynamic_code_manager import DynamicCodeManager
-from llm_code_generator import LLMCodeGenerator, extract_method_signature
-from hot_swap_executor import HotSwapExecutor
-from llm_response_cleaner import LLMResponseCleaner
+from dynamic_functioneer.dynamic_code_manager import DynamicCodeManager
+from dynamic_functioneer.llm_code_generator import LLMCodeGenerator, extract_method_signature
+from dynamic_functioneer.hot_swap_executor import HotSwapExecutor
+from dynamic_functioneer.llm_response_cleaner import LLMResponseCleaner
 import importlib
 import sys
 from functools import wraps
-from etimedecorator import elapsedTimeDecorator
 
 import ast
 
@@ -497,28 +496,28 @@ def dynamic_function(
 #     return decorator
 
 
-# # @elapsedTimeDecorator()
-@dynamic_function(
-    model="meta-llama/llama-3.2-3b-instruct:free",
-    # prompt="custom_prompt.txt",
-    # hs_condition="len(numbers) > 1000",
-    # execution_context={"frequent_inputs": [[], [1, 2, 3]]},
-    # keep_ok_version=True
-)
-def calculate_average(numbers):
-    """
-    Calculates the average of a list of numbers.
+# # # @elapsedTimeDecorator()
+# @dynamic_function(
+#     model="meta-llama/llama-3.2-3b-instruct:free",
+#     # prompt="custom_prompt.txt",
+#     # hs_condition="len(numbers) > 1000",
+#     # execution_context={"frequent_inputs": [[], [1, 2, 3]]},
+#     # keep_ok_version=True
+# )
+# def calculate_average(numbers):
+#     """
+#     Calculates the average of a list of numbers.
 
-    Args:
-        numbers (list of float): A list of numeric values.
+#     Args:
+#         numbers (list of float): A list of numeric values.
 
-    Returns:
-        float: The average of the list.
-    """
-    pass
+#     Returns:
+#         float: The average of the list.
+#     """
+#     pass
 
 
-print(calculate_average([1, 3, 7]))
+# print(calculate_average([1, 3, 7]))
 
 # print(calculate_average([3.3]*2000))
 

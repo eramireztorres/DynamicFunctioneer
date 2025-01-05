@@ -1,7 +1,8 @@
 import os
 import openai
-from base_model_api import BaseModelAPI
 import requests
+from dynamic_functioneer.base_model_api import BaseModelAPI
+
 
 class OpenAIModelAPI(BaseModelAPI):
     """

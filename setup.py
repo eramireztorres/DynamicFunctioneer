@@ -1,22 +1,20 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="dynamic_functioneer",  # Replace with your project name
-    version="0.1.0",  # Update as per semantic versioning
+    name="dynamic_functioneer",
+    version="0.1.0",
+    description="A Python package for dynamic function and method handling with LLM support.",
     author="Erick Eduardo Ramirez Torres",
     author_email="erickeduardoramireztorres@gmail.com",
-    description="A Python package for dynamic function and method handling with LLM support.",
+    license="MIT",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
-    url="https://github.com/eramireztorres/DynamicFunctioneer",  
-    packages=find_packages(exclude=["tests*", "docs*", "examples*"]),
-    include_package_data=True,  # Includes files specified in MANIFEST.in
-    python_requires=">=3.7",  # Update based on your project’s requirements
+    python_requires=">=3.8",
     install_requires=[
-        "setuptools>=42",
-        "importlib-metadata>=1.0; python_version<'3.8'",  # Example dependency
-        # "numpy>=1.19.0",
-        "astunparse",  # If used in your project
+        "astunparse",
+        "uv",
+        "openai==1.35.3",
+        "requests==2.32.3",
     ],
     extras_require={
         "dev": [
@@ -31,20 +29,27 @@ setup(
             "sphinx-rtd-theme",
         ],
     },
-    entry_points={
-        "console_scripts": [
-            "dynamic-cli=dynamic_functioneer.cli:main",  # Example CLI entry point
-        ],
+    packages=find_packages(),
+    include_package_data=True,  # Ensure package data is included
+    package_data={
+        "dynamic_functioneer": ["prompts/*"],
+    },
+    exclude_package_data={
+        "": ["tests", "examples"],
     },
     classifiers=[
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
-        "License :: OSI Approved :: MIT License",  # Update license if needed
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    license="MIT",  
     keywords="dynamic methods functions LLM hot-swapping",
-
+    url="https://github.com/eramireztorres/DynamicFunctioneer",
+    project_urls={
+        "Documentation": "https://github.com/eramireztorres/DynamicFunctioneer",
+        "Source": "https://github.com/eramireztorres/DynamicFunctioneer",
+    },
 )

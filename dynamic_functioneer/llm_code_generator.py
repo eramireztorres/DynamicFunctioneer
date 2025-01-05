@@ -2,9 +2,10 @@ import logging
 import time
 from pathlib import Path
 import inspect
-from prompt_manager import PromptManager
-from model_api_factory import ModelAPIFactory
 import ast
+from dynamic_functioneer.prompt_manager import PromptManager
+from dynamic_functioneer.model_api_factory import ModelAPIFactory
+
 
 def extract_function_signature(func_or_source):
     """
@@ -86,7 +87,7 @@ class LLMCodeGenerator:
     Manages interactions with the LLM to generate or improve function/method code.
     """
 
-    def __init__(self, model_provider=None, model="gpt-4", prompt_dir="prompts"):
+    def __init__(self, model_provider=None, model="gpt-4", prompt_dir="./dynamic_functioneer/prompts"):
         """
         Initialize the LLMCodeGenerator.
 
