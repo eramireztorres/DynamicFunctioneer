@@ -162,11 +162,7 @@ The `@dynamic_function` decorator dynamically generates, tests, and improves the
 ### Usage Example: Dynamic function
 
 ```python
-@dynamic_function(
-    model="gpt-4o",
-    extra_info="Calculates the average of a list of numbers.",
-    unit_test=True
-)
+@dynamic_function()
 def calculate_average(numbers):
     """
     Calculates the average of a list of numbers.
@@ -202,9 +198,9 @@ class TaskManager:
         self.tasks = {}
 
     @dynamic_function(
-        model="gpt-4o",
+        model="meta-llama/llama-3.2-3b-instruct:free",
         extra_info="Adds a new task with a given priority. Updates priority if the task already exists.",
-        unit_test=True
+        error_model="meta-llama/llama-3.2-3b-instruct:free"
     )
     def add_task(self, task_name, priority):
         """
@@ -220,9 +216,9 @@ class TaskManager:
         pass
 
     @dynamic_function(
-        model="gpt-4o",
+        model="meta-llama/llama-3.2-3b-instruct:free",
         extra_info="Retrieves the priority of a given task. Raises an error if the task does not exist.",
-        unit_test=True
+        error_model="meta-llama/llama-3.2-3b-instruct:free"
     )
     def get_task_priority(self, task_name):
         """
@@ -254,10 +250,115 @@ if __name__ == "__main__":
     # Retrieve task priorities
     print(manager.get_task_priority("Finish report"))  # Output: 3
     print(manager.get_task_priority("Buy groceries"))  # Output: 2
+```
 
-    # Attempt to retrieve a non-existent task
-    try:
-        print(manager.get_task_priority("Exercise"))
-    except KeyError as e:
-        print(f"Error: {e}")
+### Usage Example: Dynamic Methods in a Class
+
+Example using different models for creating code and fix errors.
+
+```python
+
+from dynamic_functioneer.dynamic_decorator import dynamic_function
+
+class StudentGrades:
+    """
+    A class to manage student grades in a course.
+    """
+
+    def __init__(self):
+        """
+        Initializes the StudentGrades class with an empty dictionary for student records.
+        """
+        self.grades = {}
+
+    @dynamic_function(
+        model="meta-llama/llama-3.2-1b-instruct:free",
+        extra_info="Adds or updates a student's grade for a specific course.",
+        error_model="chatgpt-4o-latest"
+    )
+
+    def add_grade(self, student_name, course_name, grade):
+        """
+        Adds or updates a student's grade for a specific course.
+
+        Args:
+            student_name (str): The name of the student.
+            course_name (str): The name of the course.
+            grade (float): The grade to assign to the student for the course.
+
+        Returns:
+            str: Confirmation message about the added or updated grade.
+
+        Examples:
+            >>> grades = StudentGrades()
+            >>> grades.add_grade("Alice", "Math", 95.0)
+            'Added grade for Alice in Math with grade 95.0'
+
+            >>> grades.add_grade("Alice", "Math", 98.0)
+            'Updated grade for Alice in Math to 98.0'
+
+            >>> grades.grades
+            {'Alice': {'Math': 98.0}}
+        """
+
+        pass
+
+
+    @dynamic_function(
+        model="gpt-4o-mini",
+        extra_info="Retrieves the grade for a student in a specific course. Raises an error if the student or course is not found.",
+        error_model="chatgpt-4o-latest"
+    )
+
+    def get_grade(self, student_name, course_name):
+        """
+        Retrieves the grade for a specific course.
+
+        Args:
+            student_name (str): The name of the student.
+            course_name (str): The name of the course.
+
+        Returns:
+            float: The grade for the course.
+
+        Raises:
+            KeyError: If the student or course does not exist.
+
+        Examples:
+            >>> grades = StudentGrades()
+            >>> grades.add_grade("Alice", "Math", 95.0)
+            >>> grades.get_grade("Alice", "Math")
+            95.0
+
+            >>> grades.get_grade("Bob", "Math")
+            Traceback (most recent call last):
+                ...
+            KeyError: "Student 'Bob' not found."
+
+            >>> grades.get_grade("Alice", "Science")
+            Traceback (most recent call last):
+                ...
+            KeyError: "Course 'Science' not found for student 'Alice'."
+        """
+
+        pass
+
+
+# Example Usage
+if __name__ == "__main__":
+    grades = StudentGrades()
+
+    # Add grades
+    print(grades.add_grade("Alice", "Math", 95.0))
+    print(grades.add_grade("Bob", "Math", 88.5))
+    print(grades.add_grade("Alice", "Science", 89.0))
+
+    # # Update a grade
+    print(grades.add_grade("Alice", "Math", 98.0))  # Should update the Math grade for Alice
+
+    # # Retrieve grades
+    print(f"Alice's Math grade: {grades.get_grade('Alice', 'Math')}")  # Output: 98.0
+    print(f"Bob's Math grade: {grades.get_grade('Bob', 'Math')}")      # Output: 88.5
+    print(f"Alice's Science grade: {grades.get_grade('Alice', 'Science')}")  # Output: 89.0
+
 ```
