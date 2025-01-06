@@ -1,4 +1,5 @@
 import logging
+import os
 from textwrap import dedent
 from dynamic_functioneer.dynamic_code_manager import DynamicCodeManager
 from dynamic_functioneer.llm_code_generator import LLMCodeGenerator
@@ -28,23 +29,24 @@ class HotSwapExecutor:
         self.class_code = class_code
         logging.basicConfig(level=logging.INFO)
 
-    def execute_workflow(self, function_name, test_code, condition_met=False, error_message=None):
+    def execute_workflow(self, function_name, test_code, condition_met=False, error_message=None, script_dir="."):
         """
         Executes the workflow for hot-swapping or fixing code dynamically.
-
+    
         Args:
             function_name (str): The name of the function or method being managed.
             test_code (str): Test code for validating the function.
             condition_met (bool): Indicates if a hot-swapping condition has been triggered.
             error_message (str): Runtime error message (if applicable).
-
+            script_dir (str): Directory where the test file should be saved.
+    
         Returns:
             bool: True if new code was successfully applied, False otherwise.
         """
         try:
             logging.info("Testing current function...")
-            # Gracefully handle test failures
-            self._test_function(function_name, test_code)
+            # Gracefully handle test failures            
+            self._test_function(function_name, test_code, script_dir=script_dir)
             logging.info("Test completed successfully (or skipped errors).")
             return True
         except Exception as e:
@@ -52,30 +54,56 @@ class HotSwapExecutor:
             return False
 
 
-    def _test_function(self, function_name, test_code):
+    # def execute_workflow(self, function_name, test_code, condition_met=False, error_message=None):
+    #     """
+    #     Executes the workflow for hot-swapping or fixing code dynamically.
+
+    #     Args:
+    #         function_name (str): The name of the function or method being managed.
+    #         test_code (str): Test code for validating the function.
+    #         condition_met (bool): Indicates if a hot-swapping condition has been triggered.
+    #         error_message (str): Runtime error message (if applicable).
+
+    #     Returns:
+    #         bool: True if new code was successfully applied, False otherwise.
+    #     """
+    #     try:
+    #         logging.info("Testing current function...")
+    #         # Gracefully handle test failures
+    #         self._test_function(function_name, test_code)
+    #         logging.info("Test completed successfully (or skipped errors).")
+    #         return True
+    #     except Exception as e:
+    #         logging.error(f"Workflow execution failed: {e}")
+    #         return False
+
+    
+    def _test_function(self, function_name, test_code, script_dir="."):
         """
         Tests the current function using the provided test code.
     
         Args:
             function_name (str): The name of the function or method being tested.
             test_code (str): Test code for validation.
+            script_dir (str): Directory where the test file should be saved.
         """
         logging.info("Adding boilerplate to test code...")
-    
+        
         # Create a BoilerplateManager instance
         boilerplate_manager = BoilerplateManager(is_method=self.is_method, class_code=self.class_code)
-    
+        
         # Generate complete test script
         complete_test_code = boilerplate_manager.add_boilerplate(
             test_code,
             function_name,
-            import_path=self.code_manager.dynamic_file_path.replace(".py", "")
+            import_path=self.code_manager.dynamic_file_path,
+            script_dir=script_dir  # Pass script directory
         )
-    
-        # Save the test file
-        test_file_path = f"test_{function_name}.py"
+        
+        # Save the test file in the script directory
+        test_file_path = os.path.join(script_dir, f"test_{function_name}.py")
         self.code_manager.save_test_file(test_file_path, dedent(complete_test_code))
-    
+        
         # Run the test, handle any issues gracefully
         try:
             if not self.code_manager.run_test(test_file_path):
@@ -84,40 +112,71 @@ class HotSwapExecutor:
             logging.error(f"Error running test for {function_name}: {e}")
 
 
-    # def _test_function(self, function_name, test_code):
+
+    # def _test_function(self, function_name, test_code, script_dir="."):
     #     """
     #     Tests the current function using the provided test code.
-
+    
     #     Args:
     #         function_name (str): The name of the function or method being tested.
     #         test_code (str): Test code for validation.
-
-    #     Returns:
-    #         bool: True if the test passes, False otherwise.
+    #         script_dir (str): Directory where the test file should be saved.
     #     """
     #     logging.info("Adding boilerplate to test code...")
-
+        
     #     # Create a BoilerplateManager instance
     #     boilerplate_manager = BoilerplateManager(is_method=self.is_method, class_code=self.class_code)
-
+        
     #     # Generate complete test script
     #     complete_test_code = boilerplate_manager.add_boilerplate(
     #         test_code,
     #         function_name,
     #         import_path=self.code_manager.dynamic_file_path.replace(".py", "")
     #     )
-
-    #     # Save the test file
-    #     test_file_path = f"test_{function_name}.py"
+        
+    #     # Save the test file in the script directory
+    #     test_file_path = os.path.join(script_dir, f"test_{function_name}.py")
     #     self.code_manager.save_test_file(test_file_path, dedent(complete_test_code))
-
-    #     # Run the test, catch any errors, and log them
+        
+    #     # Run the test, handle any issues gracefully
     #     try:
     #         if not self.code_manager.run_test(test_file_path):
     #             logging.warning(f"Test for {function_name} failed. Execution will continue.")
     #     except Exception as e:
     #         logging.error(f"Error running test for {function_name}: {e}")
-    #         logging.warning(f"Skipping test issues. Execution will continue.")
+
+
+
+    # def _test_function(self, function_name, test_code):
+    #     """
+    #     Tests the current function using the provided test code.
+    
+    #     Args:
+    #         function_name (str): The name of the function or method being tested.
+    #         test_code (str): Test code for validation.
+    #     """
+    #     logging.info("Adding boilerplate to test code...")
+    
+    #     # Create a BoilerplateManager instance
+    #     boilerplate_manager = BoilerplateManager(is_method=self.is_method, class_code=self.class_code)
+    
+    #     # Generate complete test script
+    #     complete_test_code = boilerplate_manager.add_boilerplate(
+    #         test_code,
+    #         function_name,
+    #         import_path=self.code_manager.dynamic_file_path.replace(".py", "")
+    #     )
+    
+    #     # Save the test file
+    #     test_file_path = f"test_{function_name}.py"
+    #     self.code_manager.save_test_file(test_file_path, dedent(complete_test_code))
+    
+    #     # Run the test, handle any issues gracefully
+    #     try:
+    #         if not self.code_manager.run_test(test_file_path):
+    #             logging.warning(f"Test for {function_name} failed. Execution will continue.")
+    #     except Exception as e:
+    #         logging.error(f"Error running test for {function_name}: {e}")
 
     def _handle_failure(self, function_name, test_code, error_message, condition_met):
         """

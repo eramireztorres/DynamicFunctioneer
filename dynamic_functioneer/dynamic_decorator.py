@@ -1,13 +1,14 @@
 import functools
 import logging
 import inspect
+import importlib
+import sys
+import os
+from functools import wraps
 from dynamic_functioneer.dynamic_code_manager import DynamicCodeManager
 from dynamic_functioneer.llm_code_generator import LLMCodeGenerator, extract_method_signature
 from dynamic_functioneer.hot_swap_executor import HotSwapExecutor
 from dynamic_functioneer.llm_response_cleaner import LLMResponseCleaner
-import importlib
-import sys
-from functools import wraps
 
 import ast
 
@@ -56,6 +57,11 @@ def dynamic_function(
     keep_ok_version=True,
 ):
     def decorator(func):
+        
+        # Determine the directory of the script containing the decorated function
+        script_file_path = inspect.getfile(func)
+        script_dir = os.path.dirname(os.path.abspath(script_file_path))
+        
         is_method = "." in func.__qualname__
 
         if is_method:
@@ -64,7 +70,7 @@ def dynamic_function(
             def method_wrapper(self, *args, **kwargs):
                 function_name = func.__name__
                 class_name = self.__class__.__name__
-                default_dynamic_file = f"d_{class_name}_{function_name}.py"
+                default_dynamic_file = os.path.join(script_dir, f"d_{class_name}_{function_name}.py")
                 dynamic_file_path = dynamic_file or default_dynamic_file
             
                 # Initialize components
@@ -123,7 +129,9 @@ def dynamic_function(
                     hot_swap_executor.execute_workflow(
                         function_name=function_name,
                         test_code=cleaned_test_code,
+                        script_dir=script_dir
                     )
+
             
                 importlib.invalidate_caches()
                 dynamic_method = code_manager.load_function(function_name)
@@ -150,9 +158,11 @@ def dynamic_function(
                         hot_swap_executor.execute_workflow(
                             function_name=function_name,
                             test_code=cleaned_test_code,
-                            error_message=str(e),
+                            script_dir=script_dir,
+                            error_message=str(e)
                         )
-            
+                        
+           
                         importlib.invalidate_caches()
                         dynamic_method = code_manager.load_function(function_name)
                         dynamic_method = dynamic_method.__get__(self, type(self))
@@ -170,7 +180,7 @@ def dynamic_function(
             @wraps(func)
             def function_wrapper(*args, **kwargs):
                 function_name = func.__name__
-                default_dynamic_file = f"d_{function_name}.py"
+                default_dynamic_file = os.path.join(script_dir, f"d_{function_name}.py")
                 dynamic_file_path = dynamic_file or default_dynamic_file
 
                 # Initialize components
@@ -207,6 +217,7 @@ def dynamic_function(
                     hot_swap_executor.execute_workflow(
                         function_name=function_name,
                         test_code=cleaned_test_code,
+                        script_dir=script_dir
                     )
             
 
@@ -235,7 +246,8 @@ def dynamic_function(
                         hot_swap_executor.execute_workflow(
                             function_name=function_name,
                             test_code=cleaned_test_code,
-                            error_message=str(e),
+                            script_dir=script_dir,
+                            error_message=str(e)
                         )
 
                         importlib.invalidate_caches()

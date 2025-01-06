@@ -310,21 +310,56 @@ class DynamicCodeManager:
     #     except Exception as e:
     #         raise ImportError(f"Failed to load function '{function_name}': {e}")
 
-    def save_test_file(self, test_file_name, test_code):
+    # def save_test_file(self, test_file_name, test_code):
+    #     """
+    #     Saves test code to a specified file.
+
+    #     Args:
+    #         test_file_name (str): Name of the test file (e.g., "test_function.py").
+    #         test_code (str): The test code to save.
+    #     """
+    #     test_file_path = os.path.join(self.test_file_dir, test_file_name)
+    #     try:
+    #         with open(test_file_path, 'w') as file:
+    #             file.write(test_code)
+    #         logging.info(f"Test code saved successfully to {test_file_path}")
+    #     except Exception as e:
+    #         logging.error(f"Failed to save test code: {e}")
+            
+    # def save_test_file(self, test_file_name, test_code, test_file_dir=None):
+    #     """
+    #     Saves test code to a specified file in the provided directory.
+    
+    #     Args:
+    #         test_file_name (str): Name of the test file (e.g., "test_function.py").
+    #         test_code (str): The test code to save.
+    #         test_file_dir (str, optional): Directory to save the test file. Defaults to `self.test_file_dir`.
+    #     """
+    #     test_file_dir = test_file_dir or self.test_file_dir
+    #     test_file_path = os.path.join(test_file_dir, test_file_name)
+    #     try:
+    #         with open(test_file_path, 'w') as file:
+    #             file.write(test_code)
+    #         logging.info(f"Test code saved successfully to {test_file_path}")
+    #     except Exception as e:
+    #         logging.error(f"Failed to save test code: {e}")
+
+    def save_test_file(self, test_file_path, test_code):
         """
         Saves test code to a specified file.
-
+    
         Args:
-            test_file_name (str): Name of the test file (e.g., "test_function.py").
+            test_file_path (str): Full path to the test file.
             test_code (str): The test code to save.
         """
-        test_file_path = os.path.join(self.test_file_dir, test_file_name)
         try:
-            with open(test_file_path, 'w') as file:
+            os.makedirs(os.path.dirname(test_file_path), exist_ok=True)
+            with open(test_file_path, "w") as file:
                 file.write(test_code)
-            logging.info(f"Test code saved successfully to {test_file_path}")
+            logging.info(f"Test code saved successfully to {test_file_path}")            
         except Exception as e:
             logging.error(f"Failed to save test code: {e}")
+
 
     def run_test(self, test_file_name):
         """
