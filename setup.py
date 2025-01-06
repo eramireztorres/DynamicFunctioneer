@@ -13,8 +13,9 @@ setup(
     install_requires=[
         "astunparse",
         "uv",
-        "openai==1.35.3",
-        "requests==2.32.3",
+        "openai==1.55.3",
+        "httpx==0.27.2",
+        "requests==2.32.3"
     ],
     extras_require={
         "dev": [

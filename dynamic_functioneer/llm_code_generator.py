@@ -96,6 +96,8 @@ class LLMCodeGenerator:
             model (str): The specific model to use (e.g., "gpt-4").
             prompt_dir (str): Directory containing prompt templates.
         """
+        print(f'model_provider: {model_provider}')
+
         self.model_client = ModelAPIFactory.get_model_api(provider=model_provider, model=model)
         self.prompt_manager = PromptManager(prompt_dir)
         logging.basicConfig(level=logging.INFO)
