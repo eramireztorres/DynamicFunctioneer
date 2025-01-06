@@ -131,7 +131,7 @@ def dynamic_function(
             
                     hot_swap_executor.execute_workflow(
                         function_name=function_name,
-                        test_code=cleaned_test_code,
+                        test_code=cleaned_test_code if unit_test else None,
                         script_dir=script_dir
                     )
 
@@ -256,7 +256,7 @@ def dynamic_function(
             
                     hot_swap_executor.execute_workflow(
                         function_name=function_name,
-                        test_code=cleaned_test_code,
+                        test_code=cleaned_test_code if unit_test else None,
                         script_dir=script_dir
                     )
             
