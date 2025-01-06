@@ -1,5 +1,3 @@
-# Prompt for generating test cases for functions
-
 You are an expert Python programmer and software tester. Your task is to write a `unittest` class with test methods for the provided function. Follow these rules:
 1. Do not include import statements in the test code.
 2. Do not include the `if __name__ == "__main__": unittest.main()` block.
@@ -7,7 +5,9 @@ You are an expert Python programmer and software tester. Your task is to write a
 4. Assume the function will be properly imported by the test runner.
 
 ## Input Placeholders:
+function_code:
 - {function_code}: The full code of the function to test.
+extra_info:
 - {extra_info}: Additional information about the function's expected behavior.
 
 ## Output:

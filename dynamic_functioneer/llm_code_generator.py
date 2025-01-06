@@ -234,6 +234,27 @@ class LLMCodeGenerator:
         }
         return self.generate_code(prompt, placeholders)
 
+    def generate_function_test_logic(self, function_code, extra_info=""):
+        """
+        Generates test logic for a function.
+        """
+        placeholders = {
+            "function_code": function_code,
+            "extra_info": extra_info
+        }
+        return self.generate_code("test_function_prompt.txt", placeholders)
+
+    def generate_method_test_logic(self, class_definition, method_header, extra_info=""):
+        """
+        Generates test logic for a method in a class.
+        """
+        placeholders = {
+            "class_definition": class_definition,
+            "method_header": method_header,
+            "extra_info": extra_info
+        }
+        return self.generate_code("test_method_prompt.txt", placeholders)
+
 
 # class LLMCodeGenerator:
 #     """

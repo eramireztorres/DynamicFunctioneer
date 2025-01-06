@@ -6,8 +6,11 @@ You are an expert Python programmer and software tester. Your task is to write a
 5. Assume the class and method will be properly imported by the test runner.
 
 ## Input Placeholders:
+class_definition:
 - {class_definition}: The full definition of the class containing the method to test.
+method_header:
 - {method_header}: The header and docstring of the method to test.
+extra_info:
 - {extra_info}: Additional information about the method's expected behavior.
 
 ## Output:
