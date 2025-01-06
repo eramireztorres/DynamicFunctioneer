@@ -4,6 +4,7 @@ from pathlib import Path
 import inspect
 import ast
 from dynamic_functioneer.prompt_manager import PromptManager
+from dynamic_functioneer.prompt_code_cleaner import DynamicFunctionCleaner
 from dynamic_functioneer.model_api_factory import ModelAPIFactory
 
 
@@ -128,7 +129,12 @@ class LLMCodeGenerator:
                 response = self.model_client.get_response(rendered_prompt)
                 if response:
                     logging.info("Code generated successfully.")
-                    return response.strip()
+                    
+                    # Clean the code using DynamicFunctionCleaner
+                    cleaner = DynamicFunctionCleaner(response.strip())
+                    cleaned_code = cleaner.clean_dynamic_function()
+                    
+                    return cleaned_code
             except Exception as e:
                 logging.error(f"Error generating code (attempt {attempt}): {e}")
                 if attempt < retries:

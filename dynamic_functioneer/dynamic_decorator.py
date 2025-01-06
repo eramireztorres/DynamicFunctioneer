@@ -5,12 +5,13 @@ import importlib
 import sys
 import os
 from functools import wraps
+import ast
 from dynamic_functioneer.dynamic_code_manager import DynamicCodeManager
 from dynamic_functioneer.llm_code_generator import LLMCodeGenerator, extract_method_signature
 from dynamic_functioneer.hot_swap_executor import HotSwapExecutor
 from dynamic_functioneer.llm_response_cleaner import LLMResponseCleaner
+from dynamic_functioneer.prompt_code_cleaner import DynamicFunctionCleaner
 
-import ast
 
 def _extract_class_code(module, class_name):
     """
@@ -83,7 +84,9 @@ def dynamic_function(
                 except OSError:
                     logging.warning(f"Source code for class {class_name} is not available. Using repr as fallback.")
                     class_code = repr(self.__class__)
-            
+                
+                class_code = DynamicFunctionCleaner(class_code).clean_dynamic_function()
+                
                 hot_swap_executor = HotSwapExecutor(
                     code_manager=code_manager,
                     llm_generator=llm_generator,
@@ -100,9 +103,11 @@ def dynamic_function(
                             method_header=func.__name__,  # Pass only the method name
                             extra_info=extra_info
                         )
-
                    
-                    cleaned_code = LLMResponseCleaner.clean_response(method_code)
+                                        
+                    cleaned_code = LLMResponseCleaner.clean_response(method_code)                    
+                    cleaned_code = DynamicFunctionCleaner(cleaned_code).clean_dynamic_function()
+                    
                     logging.info(f"Generated method code:\n{cleaned_code}")
                     code_manager.save_code(cleaned_code)
             
@@ -119,6 +124,7 @@ def dynamic_function(
                             
                             try:
                                 cleaned_test_code = LLMResponseCleaner.clean_response(test_code)
+                                cleaned_test_code = DynamicFunctionCleaner(cleaned_test_code).clean_dynamic_function()
                             except Exception as e:
                                 logging.warning(f"Failed to clean test code for {function_name}: {e}")
                                 cleaned_test_code = None
@@ -159,6 +165,9 @@ def dynamic_function(
                                     error_message=str(e)
                                 )
                                 
+                                corrected_code = LLMResponseCleaner.clean_response(corrected_code)
+                                corrected_code = DynamicFunctionCleaner(corrected_code).clean_dynamic_function()
+                    
                                 cleaned_test_code = None
                                 if unit_test:
                                     # Generate the corresponding test code
@@ -171,6 +180,7 @@ def dynamic_function(
                         
                                         try:
                                             cleaned_test_code = LLMResponseCleaner.clean_response(test_code)
+                                            cleaned_test_code = DynamicFunctionCleaner(cleaned_test_code).clean_dynamic_function()
                                         except Exception as e:
                                             logging.warning(f"Failed to clean test code for {function_name}: {e}")
                                             cleaned_test_code = None
@@ -231,7 +241,9 @@ def dynamic_function(
                         docstring=func.__doc__,
                         extra_info=extra_info,
                     )
-                    cleaned_code = LLMResponseCleaner.clean_response(function_code)
+                    cleaned_code = LLMResponseCleaner.clean_response(function_code)                    
+                    cleaned_code = DynamicFunctionCleaner(cleaned_code).clean_dynamic_function()
+                    
                     logging.info(f"Generated function code:\n{cleaned_code}")
                     code_manager.save_code(cleaned_code)
                     
@@ -240,12 +252,18 @@ def dynamic_function(
                     cleaned_test_code = None
                     if unit_test:
                         try:
+                            
+                            function_code = inspect.getsource(func)
+                            function_code = DynamicFunctionCleaner(function_code).clean_dynamic_function()
+                            
                             test_code = llm_generator.generate_function_test_logic(
-                                function_code=inspect.getsource(func),
+                                function_code=function_code,
                                 extra_info=extra_info
                             )
                             try:
                                 cleaned_test_code = LLMResponseCleaner.clean_response(test_code)
+                                cleaned_test_code = DynamicFunctionCleaner(cleaned_test_code).clean_dynamic_function()
+
                             except Exception as e:
                                 logging.warning(f"Failed to clean test code for {function_name}: {e}")
                                 cleaned_test_code = None
@@ -283,17 +301,25 @@ def dynamic_function(
                                     error_message=str(e)
                                 )
                                 
+                                corrected_code = LLMResponseCleaner.clean_response(corrected_code)
+                                corrected_code = DynamicFunctionCleaner(corrected_code).clean_dynamic_function()
+                                
                                 cleaned_test_code = None
                                 if unit_test:
                                     # Generate the corresponding test code
                                     try:
+                                        
+                                        function_code = inspect.getsource(func)
+                                        function_code = DynamicFunctionCleaner(function_code).clean_dynamic_function()
+                                        
                                         test_code = error_llm_generator.generate_function_test_logic(
-                                            function_code=inspect.getsource(func),
+                                            function_code=function_code,
                                             extra_info=extra_info
                                         )
                         
                                         try:
                                             cleaned_test_code = LLMResponseCleaner.clean_response(test_code)
+                                            cleaned_test_code = DynamicFunctionCleaner(cleaned_test_code).clean_dynamic_function()
                                         except Exception as e:
                                             logging.warning(f"Failed to clean test code for {function_name}: {e}")
                                             cleaned_test_code = None
