@@ -61,12 +61,203 @@ Make sure to activate this environment whenever working with Gpt4CLI.
 
 ```bash
 uv sync
-uv run python setup.py install
 ```
 
-For development purposes, you can use editable mode, so replace the latest with:
+## Export the API keys of your models
+
+### OpenAI Models
+
+For OpenAI models, export your API key as an environment variable:
+
+Linux or macOS:
 
 ```bash
-uv sync
-uv run python setup.py develop
+export OPENAI_API_KEY='your_openai_api_key_here'
+```
+
+Or in windows:
+
+```bash
+setx OPENAI_API_KEY "your_openai_api_key_here"
+```
+
+### Other Models via OpenRouter
+
+To use Llama, Gemini or models with OpenRouter, follow these steps:
+
+1. Visit [OpenRouter](https://openrouter.ai/) and log in or create an account.
+2. Navigate to the API keys section in your account dashboard and generate a new API key.
+3. Export the API key as an environment variable:
+   - For Linux or macOS:
+     ```bash
+     export OPENROUTER_API_KEY='your_openrouter_api_key_here'
+     ```
+   - For Windows:
+     ```bash
+     setx OPENROUTER_API_KEY "your_openrouter_api_key_here"
+     ```
+     
+### Overview
+
+`@dynamic_function` is a Python decorator designed to enhance the flexibility and robustness of your functions and methods by dynamically generating, testing, and improving their implementation. Powered by large language models (LLMs), this decorator enables seamless integration of dynamic logic into your codebase, providing:
+
+- **Automatic Implementation**: Generates function or method code dynamically based on provided descriptions and examples.
+- **Error Handling**: Automatically detects and fixes runtime errors using iterative retries and LLM-based suggestions.
+- **Unit Testing Integration**: Optionally generates and executes unit tests for the dynamic code to ensure reliability.
+- **Customization**: Allows developers to configure models, retries, testing, and other parameters to suit their specific requirements.
+
+By leveraging `@dynamic_function`, developers can prototype faster, maintain cleaner code, and handle edge cases with minimal manual intervention.
+
+## `@dynamic_function` Decorator
+
+The `@dynamic_function` decorator dynamically generates, tests, and improves the implementation of functions or methods using the power of large language models (LLMs). It integrates features like automatic code generation, runtime error fixing, and optional unit testing to provide a highly flexible and automated development workflow.
+
+### Arguments
+
+- **`model`** *(str, default="gpt-4o")*  
+  Specifies the LLM to use for generating the function or method code.
+
+- **`prompt`** *(str, optional)*  
+  A custom prompt to guide the LLM for generating code. If `None`, a default prompt is used.
+
+- **`dynamic_file`** *(str, optional)*  
+  Path to the file where the dynamically generated function/method code will be stored. Defaults to a file in the same directory as the decorated function or method.
+
+- **`dynamic_test_file`** *(str, optional)*  
+  Path to the file where generated unit test code will be stored, if unit testing is enabled.
+
+- **`extra_info`** *(str, optional)*  
+  Additional information or examples to provide context to the LLM for code generation.
+
+- **`fix_dynamically`** *(bool, default=True)*  
+  If `True`, the decorator attempts to fix runtime errors dynamically by generating corrected code using the LLM.
+
+- **`error_trials`** *(int, default=3)*  
+  The number of attempts the LLM should make to fix runtime errors.
+
+- **`error_model`** *(str, default="gpt-4o")*  
+  The LLM model to use for generating fixes for runtime errors.
+
+- **`error_prompt`** *(str, optional)*  
+  A custom prompt to guide the LLM for fixing runtime errors. If `None`, a default error-fixing prompt is used.
+
+- **`hs_condition`** *(callable, optional)*  
+  A condition that, when met, triggers hot-swapping of the function or method with a new dynamically generated version.
+
+- **`hs_model`** *(str, default="gpt-4o")*  
+  The LLM model to use for hot-swapping logic when the `hs_condition` is met.
+
+- **`hs_prompt`** *(str, optional)*  
+  A custom prompt to guide the LLM for hot-swapping the function or method.
+
+- **`execution_context`** *(dict, optional)*  
+  A dictionary of additional context or variables required during code execution or testing.
+
+- **`keep_ok_version`** *(bool, default=True)*  
+  If `True`, retains the last known working version of the dynamically generated code before attempting any fixes or updates.
+
+- **`unit_test`** *(bool, default=False)*  
+  If `True`, the decorator generates and executes unit tests for the dynamic code. Unit testing is skipped if set to `False`.
+
+### Usage Example: Dynamic function
+
+```python
+@dynamic_function(
+    model="gpt-4o",
+    extra_info="Calculates the average of a list of numbers.",
+    unit_test=True
+)
+def calculate_average(numbers):
+    """
+    Calculates the average of a list of numbers.
+
+    Args:
+        numbers (list of float): A list of numeric values.
+
+    Returns:
+        float: The average of the list.
+
+    Raises:
+        ValueError: If the list is empty or contains invalid values.
+    """
+    pass
+```
+
+### Usage Example: Dynamic Methods in a Class
+
+The `@dynamic_function` decorator can be applied to methods within a class to dynamically generate, test, and fix their implementation.
+
+```python
+from dynamic_functioneer.dynamic_decorator import dynamic_function
+
+class TaskManager:
+    """
+    A class to represent a task management system.
+    """
+
+    def __init__(self):
+        """
+        Initializes the task manager with an empty task dictionary.
+        """
+        self.tasks = {}
+
+    @dynamic_function(
+        model="gpt-4o",
+        extra_info="Adds a new task with a given priority. Updates priority if the task already exists.",
+        unit_test=True
+    )
+    def add_task(self, task_name, priority):
+        """
+        Adds or updates a task in the task list.
+
+        Args:
+            task_name (str): The name of the task.
+            priority (int): The priority level of the task.
+
+        Returns:
+            str: Confirmation message about the added or updated task.
+        """
+        pass
+
+    @dynamic_function(
+        model="gpt-4o",
+        extra_info="Retrieves the priority of a given task. Raises an error if the task does not exist.",
+        unit_test=True
+    )
+    def get_task_priority(self, task_name):
+        """
+        Retrieves the priority of a specified task.
+
+        Args:
+            task_name (str): The name of the task.
+
+        Returns:
+            int: The priority level of the task.
+
+        Raises:
+            KeyError: If the task does not exist.
+        """
+        pass
+
+
+# Example Usage
+if __name__ == "__main__":
+    manager = TaskManager()
+
+    # Add tasks
+    print(manager.add_task("Finish report", 1))
+    print(manager.add_task("Buy groceries", 2))
+
+    # Update an existing task
+    print(manager.add_task("Finish report", 3))
+
+    # Retrieve task priorities
+    print(manager.get_task_priority("Finish report"))  # Output: 3
+    print(manager.get_task_priority("Buy groceries"))  # Output: 2
+
+    # Attempt to retrieve a non-existent task
+    try:
+        print(manager.get_task_priority("Exercise"))
+    except KeyError as e:
+        print(f"Error: {e}")
 ```
