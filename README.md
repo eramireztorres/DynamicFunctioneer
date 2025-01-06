@@ -179,7 +179,7 @@ def calculate_average(numbers):
     pass
 ```
 
-### Usage Example: Dynamic Methods in a Class
+### Usage Example: Dynamic Methods in a Class 1
 
 The `@dynamic_function` decorator can be applied to methods within a class to dynamically generate, test, and fix their implementation.
 
@@ -252,7 +252,7 @@ if __name__ == "__main__":
     print(manager.get_task_priority("Buy groceries"))  # Output: 2
 ```
 
-### Usage Example: Dynamic Methods in a Class
+### Usage Example: Dynamic Methods in a Class 2
 
 Example using different models for creating code and fix errors.
 
