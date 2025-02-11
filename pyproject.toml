@@ -35,7 +35,7 @@ docs = [
 ]
 
 [tool.setuptools.packages.find]
-where = ["dynamic_functioneer"]
+where = ["."]
 
 [tool.setuptools.package-data]
 dynamic_functioneer = ["prompts/*"]
