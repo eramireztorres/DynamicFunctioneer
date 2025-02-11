@@ -28,29 +28,60 @@ class HotSwapExecutor:
         self.is_method = is_method
         self.class_code = class_code
         logging.basicConfig(level=logging.INFO)
-
+        
     def execute_workflow(self, function_name, test_code, condition_met=False, error_message=None, script_dir="."):
         """
         Executes the workflow for hot-swapping or fixing code dynamically.
-
+    
         Args:
             function_name (str): The name of the function or method being managed.
-            test_code (str): Test code for validating the function.
+            test_code (str or None): Test code for validating the function (None if unit_test=False).
             condition_met (bool): Indicates if a hot-swapping condition has been triggered.
             error_message (str): Runtime error message (if applicable).
             script_dir (str): Directory where the test file should be saved.
-
+    
         Returns:
             bool: True if new code was successfully applied, False otherwise.
         """
         try:
             logging.info("Testing current function...")
-            self.run_test_workflow(function_name, test_code, script_dir)
-            logging.info("Test completed successfully.")
+    
+            # ✅ ADD THIS CHECK TO AVOID TEST EXECUTION WHEN test_code IS NONE
+            if test_code is not None:
+                self.run_test_workflow(function_name, test_code, script_dir)
+                logging.info("Test completed successfully.")
+            else:
+                logging.info(f"Skipping tests for {function_name} since unit_test is disabled.")
+    
             return True
+    
         except Exception as e:
             logging.error(f"Workflow execution failed: {e}")
             return False
+
+
+    # def execute_workflow(self, function_name, test_code, condition_met=False, error_message=None, script_dir="."):
+    #     """
+    #     Executes the workflow for hot-swapping or fixing code dynamically.
+
+    #     Args:
+    #         function_name (str): The name of the function or method being managed.
+    #         test_code (str): Test code for validating the function.
+    #         condition_met (bool): Indicates if a hot-swapping condition has been triggered.
+    #         error_message (str): Runtime error message (if applicable).
+    #         script_dir (str): Directory where the test file should be saved.
+
+    #     Returns:
+    #         bool: True if new code was successfully applied, False otherwise.
+    #     """
+    #     try:
+    #         logging.info("Testing current function...")
+    #         self.run_test_workflow(function_name, test_code, script_dir)
+    #         logging.info("Test completed successfully.")
+    #         return True
+    #     except Exception as e:
+    #         logging.error(f"Workflow execution failed: {e}")
+    #         return False
 
     def run_test_workflow(self, function_name, test_code, script_dir):
         """
