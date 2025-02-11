@@ -32,7 +32,7 @@ class HotSwapExecutor:
     def execute_workflow(self, function_name, test_code, condition_met=False, error_message=None, script_dir="."):
         """
         Executes the workflow for hot-swapping or fixing code dynamically.
-    
+        
         Args:
             function_name (str): The name of the function or method being managed.
             test_code (str or None): Test code for validating the function (None if unit_test=False).
@@ -46,10 +46,14 @@ class HotSwapExecutor:
         try:
             logging.info("Testing current function...")
     
-            # ✅ ADD THIS CHECK TO AVOID TEST EXECUTION WHEN test_code IS NONE
             if test_code is not None:
-                self.run_test_workflow(function_name, test_code, script_dir)
-                logging.info("Test completed successfully.")
+                test_result = self.run_test_workflow(function_name, test_code, script_dir)
+    
+                if test_result:
+                    logging.info("Test completed successfully.")  # ✅ Only print this if the test passed
+                else:
+                    logging.warning("Test failed.")  # ✅ Clearly indicate if the test failed
+    
             else:
                 logging.info(f"Skipping tests for {function_name} since unit_test is disabled.")
     
@@ -58,6 +62,37 @@ class HotSwapExecutor:
         except Exception as e:
             logging.error(f"Workflow execution failed: {e}")
             return False
+
+        
+    # def execute_workflow(self, function_name, test_code, condition_met=False, error_message=None, script_dir="."):
+    #     """
+    #     Executes the workflow for hot-swapping or fixing code dynamically.
+    
+    #     Args:
+    #         function_name (str): The name of the function or method being managed.
+    #         test_code (str or None): Test code for validating the function (None if unit_test=False).
+    #         condition_met (bool): Indicates if a hot-swapping condition has been triggered.
+    #         error_message (str): Runtime error message (if applicable).
+    #         script_dir (str): Directory where the test file should be saved.
+    
+    #     Returns:
+    #         bool: True if new code was successfully applied, False otherwise.
+    #     """
+    #     try:
+    #         logging.info("Testing current function...")
+    
+    #         # ✅ ADD THIS CHECK TO AVOID TEST EXECUTION WHEN test_code IS NONE
+    #         if test_code is not None:
+    #             self.run_test_workflow(function_name, test_code, script_dir)
+    #             logging.info("Test completed successfully.")
+    #         else:
+    #             logging.info(f"Skipping tests for {function_name} since unit_test is disabled.")
+    
+    #         return True
+    
+    #     except Exception as e:
+    #         logging.error(f"Workflow execution failed: {e}")
+    #         return False
 
 
     # def execute_workflow(self, function_name, test_code, condition_met=False, error_message=None, script_dir="."):
@@ -93,7 +128,7 @@ class HotSwapExecutor:
             script_dir (str): Directory where the test file should be saved.
         """
         test_file_path = self.save_test_code(function_name, test_code, script_dir)
-        self.run_test(test_file_path)
+        return self.run_test(test_file_path)  
 
     def save_test_code(self, function_name, test_code, script_dir):
         """
@@ -115,23 +150,35 @@ class HotSwapExecutor:
         except Exception as e:
             logging.warning(f"Failed to save test code for {function_name}: {e}")
         return test_file_path
-
+    
     def run_test(self, test_file_path):
-        """
-        Runs the test file.
-
-        Args:
-            test_file_path (str): The path to the test file.
-
-        Raises:
-            Exception: If the test fails or encounters an error.
-        """
         logging.info(f"Running test file: {test_file_path}")
         try:
-            if not self.code_manager.run_test(test_file_path):
+            success = self.code_manager.run_test(test_file_path)
+            if not success:
                 logging.warning("Test failed.")
+            return success
         except Exception as e:
             logging.error(f"Error running test: {e}")
+            return False
+
+
+    # def run_test(self, test_file_path):
+    #     """
+    #     Runs the test file.
+
+    #     Args:
+    #         test_file_path (str): The path to the test file.
+
+    #     Raises:
+    #         Exception: If the test fails or encounters an error.
+    #     """
+    #     logging.info(f"Running test file: {test_file_path}")
+    #     try:
+    #         if not self.code_manager.run_test(test_file_path):
+    #             logging.warning("Test failed.")
+    #     except Exception as e:
+    #         logging.error(f"Error running test: {e}")
 
 
     def _apply_error_correction(self, function_name, corrected_code, test_code, script_dir):
