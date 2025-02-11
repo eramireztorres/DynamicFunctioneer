@@ -157,7 +157,7 @@ The `@dynamic_function` decorator dynamically generates, tests, and improves the
   If `True`, retains the last known working version of the dynamically generated code before attempting any fixes or updates.
 
 - **`unit_test`** *(bool, default=False)*  
-  If `True`, the decorator generates and executes unit tests for the dynamic code. Unit testing is skipped if set to `False`.
+  (Only for functions) If `True`, the decorator generates and executes unit tests for the dynamic code. Unit testing is skipped if set to `False`.
 
 ### Usage Example: Dynamic function
 
