@@ -47,7 +47,12 @@ class HotSwapExecutor:
             logging.info("Testing current function...")
     
             if test_code is not None:
+
+                print(f'TEST CODE: {test_code}')
+
                 test_result = self.run_test_workflow(function_name, test_code, script_dir)
+
+                print(f'TEST RESULTS: {test_result}')
     
                 if test_result:
                     logging.info("Test completed successfully.")  # ✅ Only print this if the test passed

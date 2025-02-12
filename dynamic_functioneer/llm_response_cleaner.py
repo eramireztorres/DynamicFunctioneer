@@ -115,30 +115,90 @@ class CodeValidator:
 
 class CodeSelector:
     """
-    Selects the most relevant function/method from multiple definitions.
+    Selects the most relevant function/method from multiple definitions and removes unrelated code.
     """
     @staticmethod
     def select_relevant_function(code, function_name):
         """
-        Selects the most relevant function definition from the code.
+        Selects the most relevant function definition from the code and removes unrelated code.
 
         Args:
             code (str): The Python code containing multiple functions.
             function_name (str): The target function name.
 
         Returns:
-            str: The selected function definition.
+            str: The selected function definition without extra code.
 
         Raises:
             ValueError: If the function is not found.
         """
         tree = ast.parse(code)
+        selected_function = None
+
         for node in ast.walk(tree):
             if isinstance(node, ast.FunctionDef) and node.name == function_name:
-                return ast.unparse(node).strip()
+                selected_function = ast.unparse(node).strip()
+                break  # Stop after finding the function
 
-        raise ValueError(f"Function '{function_name}' not found in the provided code.")
+        if not selected_function:
+            raise ValueError(f"Function '{function_name}' not found in the provided code.")
 
+        return selected_function  # Return only the function definition
+
+
+
+# class CodeSelector:
+#     """
+#     Selects the most relevant function/method from multiple definitions.
+#     """
+#     @staticmethod
+#     def select_relevant_function(code, function_name):
+#         """
+#         Selects the most relevant function definition from the code.
+
+#         Args:
+#             code (str): The Python code containing multiple functions.
+#             function_name (str): The target function name.
+
+#         Returns:
+#             str: The selected function definition.
+
+#         Raises:
+#             ValueError: If the function is not found.
+#         """
+#         tree = ast.parse(code)
+#         for node in ast.walk(tree):
+#             if isinstance(node, ast.FunctionDef) and node.name == function_name:
+#                 return ast.unparse(node).strip()
+
+#         raise ValueError(f"Function '{function_name}' not found in the provided code.")
+
+
+# class CodeReconstructor:
+#     """
+#     Reconstructs incomplete or malformed Python code blocks.
+#     """
+#     @staticmethod
+#     def reconstruct_code(code):
+#         """
+#         Attempts to fix incomplete code by checking for missing components (e.g., docstrings).
+
+#         Args:
+#             code (str): Malformed Python code.
+
+#         Returns:
+#             str: Reconstructed Python code.
+
+#         Raises:
+#             ValueError: If reconstruction is not possible.
+#         """
+#         if 'def ' not in code.splitlines()[0]:
+#             raise ValueError("Cannot reconstruct code: Missing 'def' statement.")
+
+#         # Attempt minimal adjustments
+#         if '"""' not in code:
+#             code = code.replace("def ", 'def ', 1)  # Minimal attempt to adjust
+#         return code
 
 class CodeReconstructor:
     """
@@ -147,7 +207,7 @@ class CodeReconstructor:
     @staticmethod
     def reconstruct_code(code):
         """
-        Attempts to fix incomplete code by checking for missing components (e.g., docstrings).
+        Attempts to fix incomplete code by checking for missing components (e.g., indentation, docstrings).
 
         Args:
             code (str): Malformed Python code.
@@ -158,13 +218,33 @@ class CodeReconstructor:
         Raises:
             ValueError: If reconstruction is not possible.
         """
-        if 'def ' not in code.splitlines()[0]:
-            raise ValueError("Cannot reconstruct code: Missing 'def' statement.")
+        lines = code.splitlines()
+        
+        # Ensure code starts with 'def ' or 'class '
+        if not any(line.lstrip().startswith(("def ", "class ")) for line in lines):
+            raise ValueError("Cannot reconstruct code: Missing 'def' or 'class' statement.")
 
-        # Attempt minimal adjustments
-        if '"""' not in code:
-            code = code.replace("def ", 'def ', 1)  # Minimal attempt to adjust
-        return code
+        # Ensure docstrings are properly closed
+        open_docstrings = sum(line.count('"""') for line in lines) % 2 != 0
+        if open_docstrings:
+            logging.warning("Detected unclosed docstring. Attempting to close it.")
+            lines.append('"""')  # Append closing docstring
+
+        # Ensure proper indentation for function definitions
+        corrected_lines = []
+        for line in lines:
+            if line.lstrip().startswith("def ") or line.lstrip().startswith("class "):
+                corrected_lines.append(line)
+            else:
+                corrected_lines.append("    " + line)  # Ensure minimum indentation
+        
+        reconstructed_code = "\n".join(corrected_lines)
+        
+        # Final validation
+        if not CodeValidator.validate_code(reconstructed_code):
+            raise ValueError("Reconstructed code is still invalid.")
+
+        return reconstructed_code
 
 
 
@@ -236,45 +316,107 @@ class LLMResponseCleaner:
     def clean_response(response, function_name=None):
         """
         Cleans the LLM response by extracting and validating Python code.
-
+    
         Args:
             response (str): The raw response from the LLM.
             function_name (str, optional): The target function name for selection.
-
+    
         Returns:
             str: The cleaned Python code.
-
+    
         Raises:
             ValueError: If no valid code could be extracted.
         """
-        print("Starting response cleaning process.")
-        print(f"Raw LLM response:\n{response}")
-
-        # Step 1: Extract the Python code block
+        logging.info("Starting response cleaning process.")
+        logging.debug(f"Raw LLM response:\n{response}")  # Debugging raw LLM response
+    
+        # Step 1: Extract Python code block
         extracted_code = CodeBlockExtractor.extract_code_block(response)
-
+        logging.debug(f"Extracted code block:\n{extracted_code}")  # Debug extracted code
+    
         # Step 2: Normalize the code
         normalized_code = CodeNormalizer.normalize_code(extracted_code)
-
+        logging.debug(f"Normalized code:\n{normalized_code}")  # Debug normalized code
+    
         # Step 3: Validate the cleaned code
         if not CodeValidator.validate_code(normalized_code):
-            print("Validation failed. Attempting reconstruction...")
+            logging.warning("Validation failed. Attempting reconstruction...")
             try:
                 normalized_code = CodeReconstructor.reconstruct_code(normalized_code)
+                logging.debug(f"Reconstructed code:\n{normalized_code}")  # Debug reconstructed code
+    
                 if not CodeValidator.validate_code(normalized_code):
                     raise ValueError("Reconstructed code is still invalid.")
             except ValueError as e:
+                logging.error(f"Code reconstruction failed: {e}")
                 raise ValueError(f"Code reconstruction failed: {e}")
-
+    
+        # Step 4: Select the relevant function if multiple exist
+        # if function_name:
+        #     try:
+        #         normalized_code = CodeSelector.select_relevant_function(normalized_code, function_name)
+        #     except ValueError as e:
+        #         raise ValueError(f"Function selection failed: {e}")
+        
         # Step 4: Select the relevant function if multiple exist
         if function_name:
             try:
                 normalized_code = CodeSelector.select_relevant_function(normalized_code, function_name)
+                logging.info(f"Final cleaned code:\n{normalized_code}")
             except ValueError as e:
                 raise ValueError(f"Function selection failed: {e}")
 
-        print(f"Cleaned code:\n{normalized_code}")
+    
+        logging.info("Final cleaned code:")
+        logging.info(f"\n{normalized_code}")
+    
         return normalized_code
+
+
+
+    # @staticmethod
+    # def clean_response(response, function_name=None):
+    #     """
+    #     Cleans the LLM response by extracting and validating Python code.
+
+    #     Args:
+    #         response (str): The raw response from the LLM.
+    #         function_name (str, optional): The target function name for selection.
+
+    #     Returns:
+    #         str: The cleaned Python code.
+
+    #     Raises:
+    #         ValueError: If no valid code could be extracted.
+    #     """
+    #     print("Starting response cleaning process.")
+    #     print(f"Raw LLM response:\n{response}")
+
+    #     # Step 1: Extract the Python code block
+    #     extracted_code = CodeBlockExtractor.extract_code_block(response)
+
+    #     # Step 2: Normalize the code
+    #     normalized_code = CodeNormalizer.normalize_code(extracted_code)
+
+    #     # Step 3: Validate the cleaned code
+    #     if not CodeValidator.validate_code(normalized_code):
+    #         print("Validation failed. Attempting reconstruction...")
+    #         try:
+    #             normalized_code = CodeReconstructor.reconstruct_code(normalized_code)
+    #             if not CodeValidator.validate_code(normalized_code):
+    #                 raise ValueError("Reconstructed code is still invalid.")
+    #         except ValueError as e:
+    #             raise ValueError(f"Code reconstruction failed: {e}")
+
+    #     # Step 4: Select the relevant function if multiple exist
+    #     if function_name:
+    #         try:
+    #             normalized_code = CodeSelector.select_relevant_function(normalized_code, function_name)
+    #         except ValueError as e:
+    #             raise ValueError(f"Function selection failed: {e}")
+
+    #     print(f"Cleaned code:\n{normalized_code}")
+    #     return normalized_code
 
     # @staticmethod
     # def clean_response(response):
