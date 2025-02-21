@@ -54,170 +54,183 @@ class CodeBlockExtractor:
             return response.strip()
 
 
+
 class CodeNormalizer:
     """
     Normalizes extracted Python code for validation and execution.
+
+    Typical steps include:
+      1. Removing bullet/prefix markers (e.g. '- ', '* ').
+      2. Dedenting code blocks if they appear to have extra indentation.
+      3. Removing trailing whitespace from each line.
+
+    If code is already valid (as determined by CodeValidator.validate_code),
+    the normalize_code method returns it unchanged.
     """
+
     @staticmethod
-    def normalize_indentation(code):
+    def remove_prefixes(code: str, prefixes=None) -> str:
         """
-        Fixes indentation issues in the code if needed.
+        Removes specific prefixes at the start of each line (e.g. '- ', '* ').
+        Lines that do not match any prefix are unchanged.
+
+        Args:
+            code (str): The Python code or text to clean.
+            prefixes (List[str], optional): The list of prefixes to remove.
+                                            Defaults to ['- ', '* '].
+
+        Returns:
+            str: Code with the specified prefixes removed from line beginnings.
+        """
+        if prefixes is None:
+            prefixes = ["- ", "* "]
+
+        cleaned_lines = []
+        for line in code.splitlines():
+            for prefix in prefixes:
+                if line.startswith(prefix):
+                    line = line[len(prefix):]
+                    # Only remove the first matching prefix, then stop checking
+                    break
+            cleaned_lines.append(line)
+        return "\n".join(cleaned_lines)
+
+    @staticmethod
+    def remove_trailing_whitespace(code: str) -> str:
+        """
+        Removes trailing (right-side) whitespace from each line in the code.
+
+        Args:
+            code (str): The Python code.
+
+        Returns:
+            str: Same code, with trailing whitespace stripped on every line.
+        """
+        lines = code.splitlines()
+        stripped = [line.rstrip() for line in lines]
+        return "\n".join(stripped)
+
+    @staticmethod
+    def normalize_indentation(code: str) -> str:
+        """
+        Dedents code if it appears to have consistent leading indentation.
+
+        This helps unify indentation style, especially if the code block
+        was captured with extra indentation.
+
+        Args:
+            code (str): The code to dedent.
+
+        Returns:
+            str: Dedented code.
+        """
+        return textwrap.dedent(code)
+
+    @staticmethod
+    def normalize_code(code: str) -> str:
+        """
+        Performs a sequence of normalization steps on the code:
+          1. If it's already valid Python (via CodeValidator), skip changes.
+          2. Remove bullet/prefix lines (e.g. '- ', '* ').
+          3. Dedent the code with textwrap.dedent().
+          4. Remove trailing whitespace.
 
         Args:
             code (str): The Python code to normalize.
 
         Returns:
-            str: Code with consistent indentation.
+            str: Normalized Python code.
         """
-        # Only dedent if code appears to have excessive leading spaces
-        if code.startswith("    "):
-            return textwrap.dedent(code)
-        return code
-
-    @staticmethod
-    def remove_prefixes(code):
-        """
-        Removes non-Python prefixes (e.g., markdown list prefixes like `- `).
-
-        Args:
-            code (str): The Python code with potential prefixes.
-
-        Returns:
-            str: Cleaned Python code.
-        """
-        return "\n".join(line.lstrip("- ") for line in code.splitlines())
-
-    @staticmethod
-    def normalize_code(code):
-        """
-        Applies normalization steps to clean the Python code.
-
-        Args:
-            code (str): The Python code to normalize.
-
-        Returns:
-            str: Fully normalized Python code.
-        """
-        # Skip normalization if already valid
         if CodeValidator.validate_code(code):
-            print("Code appears valid. Skipping normalization.")
+            # If it's already valid, do nothing
             return code
 
+        # Remove bullet/prefix lines (commonly introduced in LLM responses)
         code = CodeNormalizer.remove_prefixes(code)
-        code = CodeNormalizer.normalize_indentation(code)
-        return code
 
+        # Dedent to handle extra indentation
+        code = CodeNormalizer.normalize_indentation(code)
+
+        # Remove trailing whitespace
+        code = CodeNormalizer.remove_trailing_whitespace(code)
+
+        return code
 
 
 class CodeValidator:
     """
-    Validates Python code using the AST module.
+    Validates Python code by parsing it into an AST.
     """
+
     @staticmethod
-    def validate_code(code):
+    def validate_code(code: str) -> bool:
         """
-        Validates Python code using the `ast` module.
+        Tries to parse the code with ast.parse. If it succeeds, the code is valid.
 
         Args:
-            code (str): Python code to validate.
+            code (str): The Python code to check.
 
         Returns:
-            bool: True if the code is valid, False otherwise.
+            bool: True if valid, False otherwise.
         """
         try:
             ast.parse(code)
             return True
-        except SyntaxError as e:
-            print(f"SyntaxError during validation: {e.msg} at line {e.lineno}, offset {e.offset}")
+        except SyntaxError:
             return False
 
 
 class CodeSelector:
     """
-    Selects the most relevant function/method from multiple definitions and removes unrelated code.
+    Selects the definition of a specific function (or method) from a larger code string.
+
+    Typically used if multiple functions are present and you only want
+    to keep or return one function's AST unparse.
     """
+
     @staticmethod
-    def select_relevant_function(code, function_name):
+    def select_relevant_function(code: str, function_name: str) -> str:
         """
-        Selects the most relevant function definition from the code and removes unrelated code.
+        Locates the given function_name within the provided code and returns
+        just that function's definition as a string.
+
+        Internally:
+          1. Parses the code into an AST.
+          2. Searches for an ast.FunctionDef that matches function_name.
+          3. If found, unparse it to source code and return that snippet.
+          4. If not found, raises ValueError.
 
         Args:
             code (str): The Python code containing multiple functions.
             function_name (str): The target function name.
 
         Returns:
-            str: The selected function definition without extra code.
+            str: The source code of the function definition (including its docstring).
 
         Raises:
-            ValueError: If the function is not found.
+            ValueError: If the function is not found in the code or if ast.unparse is not available.
         """
-        tree = ast.parse(code)
-        selected_function = None
+        try:
+            tree = ast.parse(code)
+        except SyntaxError as e:
+            raise ValueError(f"Invalid Python code: {e.msg}") from e
 
+        selected_function = None
         for node in ast.walk(tree):
             if isinstance(node, ast.FunctionDef) and node.name == function_name:
-                selected_function = ast.unparse(node).strip()
-                break  # Stop after finding the function
+                # Python 3.9+ has ast.unparse
+                if hasattr(ast, "unparse"):
+                    selected_function = ast.unparse(node).strip()
+                else:
+                    raise ValueError("ast.unparse is not available in this Python version.")
+                break
 
         if not selected_function:
             raise ValueError(f"Function '{function_name}' not found in the provided code.")
 
-        return selected_function  # Return only the function definition
+        return selected_function
 
 
-
-# class CodeSelector:
-#     """
-#     Selects the most relevant function/method from multiple definitions.
-#     """
-#     @staticmethod
-#     def select_relevant_function(code, function_name):
-#         """
-#         Selects the most relevant function definition from the code.
-
-#         Args:
-#             code (str): The Python code containing multiple functions.
-#             function_name (str): The target function name.
-
-#         Returns:
-#             str: The selected function definition.
-
-#         Raises:
-#             ValueError: If the function is not found.
-#         """
-#         tree = ast.parse(code)
-#         for node in ast.walk(tree):
-#             if isinstance(node, ast.FunctionDef) and node.name == function_name:
-#                 return ast.unparse(node).strip()
-
-#         raise ValueError(f"Function '{function_name}' not found in the provided code.")
-
-
-# class CodeReconstructor:
-#     """
-#     Reconstructs incomplete or malformed Python code blocks.
-#     """
-#     @staticmethod
-#     def reconstruct_code(code):
-#         """
-#         Attempts to fix incomplete code by checking for missing components (e.g., docstrings).
-
-#         Args:
-#             code (str): Malformed Python code.
-
-#         Returns:
-#             str: Reconstructed Python code.
-
-#         Raises:
-#             ValueError: If reconstruction is not possible.
-#         """
-#         if 'def ' not in code.splitlines()[0]:
-#             raise ValueError("Cannot reconstruct code: Missing 'def' statement.")
-
-#         # Attempt minimal adjustments
-#         if '"""' not in code:
-#             code = code.replace("def ", 'def ', 1)  # Minimal attempt to adjust
-#         return code
 
 class CodeReconstructor:
     """
@@ -370,14 +383,6 @@ class LLMResponseCleaner:
                 logging.error(f"Code reconstruction failed: {e}")
                 raise ValueError(f"Code reconstruction failed: {e}")
     
-        # Step 4: Select the relevant function if multiple exist
-        # if function_name:
-        #     try:
-        #         normalized_code = CodeSelector.select_relevant_function(normalized_code, function_name)
-        #     except ValueError as e:
-        #         raise ValueError(f"Function selection failed: {e}")
-        
-        # Step 4: Select the relevant function if multiple exist
         if function_name:
             try:
                 normalized_code = CodeSelector.select_relevant_function(normalized_code, function_name)
