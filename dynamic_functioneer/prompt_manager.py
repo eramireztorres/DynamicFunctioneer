@@ -30,8 +30,7 @@ class PromptManager:
         """
         prompt_file = os.path.join(self.prompts_path, prompt_name)
         
-        print(f'prompt_file: {prompt_file}')
-        
+       
         try:
             with open(prompt_file, "r") as file:
                 return file.read()

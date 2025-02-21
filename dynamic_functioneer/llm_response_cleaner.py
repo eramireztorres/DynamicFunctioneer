@@ -313,8 +313,8 @@ class LLMResponseCleaner:
         Returns:
           str: The final, cleaned Python code.
         """
-        logging.info("Starting response cleaning process...")
-        logging.debug(f"Raw LLM response:\n{response}")
+        # logging.info("Starting response cleaning process...")
+        # logging.debug(f"Raw LLM response:\n{response}")
 
         # Step 1: Extract potential python code block
         extracted_code = CodeBlockExtractor.extract_code_block(response)
@@ -322,7 +322,7 @@ class LLMResponseCleaner:
 
         # Step 2: Normalize
         normalized_code = CodeNormalizer.normalize_code(extracted_code)
-        logging.debug(f"Normalized code:\n{normalized_code}")
+        # logging.debug(f"Normalized code:\n{normalized_code}")
 
         # Step 3: Validate
         if not CodeValidator.validate_code(normalized_code):

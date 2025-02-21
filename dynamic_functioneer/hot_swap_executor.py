@@ -40,7 +40,7 @@ class HotSwapExecutor:
             bool: True if new code was successfully applied, False otherwise.
         """
         try:
-            logging.info("Testing current function...")
+            # logging.info("Testing current function...")
     
             if test_code is not None:
 
@@ -56,7 +56,8 @@ class HotSwapExecutor:
                     logging.warning("Test failed.")  # ✅ Clearly indicate if the test failed
     
             else:
-                logging.info(f"Skipping tests for {function_name} since unit_test is disabled.")
+                # logging.info(f"Skipping tests for {function_name} since unit_test is disabled.")
+                pass
     
             return True
     
@@ -134,9 +135,9 @@ class HotSwapExecutor:
     
         if test_code:
             try:
-                logging.info(f"Generating test file for {function_name}...")
+                # logging.info(f"Generating test file for {function_name}...")
                 test_file_path = self.save_test_code(function_name, test_code, script_dir)
-                logging.info(f"Testing corrected code for {function_name}...")
+                # logging.info(f"Testing corrected code for {function_name}...")
                 return self.run_test(test_file_path)
             except Exception as e:
                 logging.error(f"Error during testing of {function_name}: {e}")

@@ -97,8 +97,6 @@ class LLMCodeGenerator:
             model (str): The specific model to use (e.g., "gpt-4").
             prompt_dir (str): Directory containing prompt templates.
         """
-        print(f'model_provider: {model_provider}')
-
         self.model_client = ModelAPIFactory.get_model_api(provider=model_provider, model=model)
         self.prompt_manager = PromptManager(prompt_dir)
         logging.basicConfig(level=logging.INFO)
@@ -124,8 +122,8 @@ class LLMCodeGenerator:
 
         for attempt in range(1, retries + 1):
             try:
-                logging.info(f"Rendered Prompt Sent to LLM:\n{rendered_prompt}")
-                logging.info(f"Sending prompt to LLM (attempt {attempt}/{retries})")
+                # logging.info(f"Rendered Prompt Sent to LLM:\n{rendered_prompt}")
+                # logging.info(f"Sending prompt to LLM (attempt {attempt}/{retries})")
                 response = self.model_client.get_response(rendered_prompt)
                 if response:
                     logging.info("Code generated successfully.")
