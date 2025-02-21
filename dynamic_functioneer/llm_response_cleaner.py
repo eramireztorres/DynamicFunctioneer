@@ -4,35 +4,54 @@ import textwrap
 
 class CodeBlockExtractor:
     """
-    Extracts Python code blocks from LLM responses.
+    Extracts the first Python code block from LLM responses.
+    Dedents and strips the contents so they match the indentation
+    expected by tests.
     """
+
     @staticmethod
     def extract_code_block(response):
         """
-        Extracts the first Python code block from the response.
+        Extracts the first Python code block from the response,
+        dedenting it to normalize indentation.
 
         Args:
             response (str): The raw LLM response.
 
         Returns:
-            str: Extracted Python code block, or the original response if no block is found.
+            str: Dedented contents of the first Python code block,
+                 or a stripped version of the original response if
+                 no code block is found.
         """
         lines = response.splitlines()
         code_lines = []
         in_code_block = False
 
         for line in lines:
+            # Detect the start of the code block
             if line.strip().startswith("```python"):
                 in_code_block = True
-                continue
-            elif line.strip().startswith("```"):
-                in_code_block = False
+                # Skip the line containing ```python
                 continue
 
+            # Detect the end of the code block
+            if in_code_block and line.strip().startswith("```"):
+                # Reached closing triple-backtick for the first code block
+                in_code_block = False
+                break
+
+            # Collect lines while inside a code block
             if in_code_block:
                 code_lines.append(line)
 
-        return "\n".join(code_lines) if code_lines else response
+        if code_lines:
+            # We found a code block; dedent to remove extra indentation
+            extracted_code = "\n".join(code_lines)
+            # dedent, then strip to remove leading/trailing newlines/spaces
+            return textwrap.dedent(extracted_code).strip()
+        else:
+            # No code block was found, so return the original text, stripped
+            return response.strip()
 
 
 class CodeNormalizer:
@@ -374,339 +393,3 @@ class LLMResponseCleaner:
 
 
 
-    # @staticmethod
-    # def clean_response(response, function_name=None):
-    #     """
-    #     Cleans the LLM response by extracting and validating Python code.
-
-    #     Args:
-    #         response (str): The raw response from the LLM.
-    #         function_name (str, optional): The target function name for selection.
-
-    #     Returns:
-    #         str: The cleaned Python code.
-
-    #     Raises:
-    #         ValueError: If no valid code could be extracted.
-    #     """
-    #     print("Starting response cleaning process.")
-    #     print(f"Raw LLM response:\n{response}")
-
-    #     # Step 1: Extract the Python code block
-    #     extracted_code = CodeBlockExtractor.extract_code_block(response)
-
-    #     # Step 2: Normalize the code
-    #     normalized_code = CodeNormalizer.normalize_code(extracted_code)
-
-    #     # Step 3: Validate the cleaned code
-    #     if not CodeValidator.validate_code(normalized_code):
-    #         print("Validation failed. Attempting reconstruction...")
-    #         try:
-    #             normalized_code = CodeReconstructor.reconstruct_code(normalized_code)
-    #             if not CodeValidator.validate_code(normalized_code):
-    #                 raise ValueError("Reconstructed code is still invalid.")
-    #         except ValueError as e:
-    #             raise ValueError(f"Code reconstruction failed: {e}")
-
-    #     # Step 4: Select the relevant function if multiple exist
-    #     if function_name:
-    #         try:
-    #             normalized_code = CodeSelector.select_relevant_function(normalized_code, function_name)
-    #         except ValueError as e:
-    #             raise ValueError(f"Function selection failed: {e}")
-
-    #     print(f"Cleaned code:\n{normalized_code}")
-    #     return normalized_code
-
-    # @staticmethod
-    # def clean_response(response):
-    #     """
-    #     Cleans the LLM response by extracting and validating Python code.
-
-    #     Args:
-    #         response (str): The raw response from the LLM.
-
-    #     Returns:
-    #         str: The cleaned Python code.
-
-    #     Raises:
-    #         ValueError: If no valid code could be extracted.
-    #     """
-    #     print("Starting response cleaning process.")
-    #     print(f"Raw LLM response:\n{response}")  # Print raw response
-
-    #     # Step 1: Extract Python code block
-    #     extracted_code = LLMResponseCleaner.extract_code_block(response)
-
-    #     # Step 2: Remove empty lines or lines with only backticks
-    #     cleaned_lines = [
-    #         line for line in extracted_code.splitlines()
-    #         if line.strip() and not line.strip().startswith("```")
-    #     ]
-    #     cleaned_code = "\n".join(cleaned_lines)
-    #     print(f"Cleaned code after processing:\n{cleaned_code}")  # Print cleaned code
-
-    #     # Step 3: Validate the cleaned code
-    #     try:
-    #         return LLMResponseCleaner.validate_code(cleaned_code)
-    #     except SyntaxError:
-    #         print("No valid Python code could be extracted after cleaning.")
-    #         raise ValueError("Failed to clean the LLM response: No valid code found.")
-
-
-# class LLMResponseCleaner:
-#     """
-#     Cleans the LLM response to retain only valid Python code.
-#     """
-
-#     @staticmethod
-#     def extract_code_block(response):
-#         """
-#         Extracts the Python code block from the LLM response.
-    
-#         Args:
-#             response (str): The raw response from the LLM.
-    
-#         Returns:
-#             str: The extracted Python code block, or the original response if no block is found.
-#         """
-#         lines = response.splitlines()
-#         code_lines = []
-#         in_code_block = False
-    
-#         for line in lines:
-#             if line.strip().startswith("```python"):
-#                 in_code_block = True
-#                 continue
-#             elif line.strip().startswith("```"):
-#                 in_code_block = False
-#                 continue
-    
-#             if in_code_block:
-#                 code_lines.append(line)
-    
-#         if code_lines:
-#             print("Extracted Python code block successfully.")
-#             print(f"Extracted code block:\n{code_lines}")  # Print extracted lines
-#         else:
-#             print("No Python code block found. Returning the original response.")
-    
-#         return "\n".join(code_lines) if code_lines else response
-
-#     @staticmethod
-#     def validate_code(response):
-#         try:
-#             # Strip unintended prefixes before validation
-#             cleaned_response = "\n".join(line.lstrip("- ") for line in response.splitlines())
-#             ast.parse(cleaned_response)
-#             print("Python code validated successfully.")
-#             return cleaned_response
-#         except SyntaxError as e:
-#             print(f"SyntaxError encountered during validation: {e}")
-#             raise
-
-#     @staticmethod
-#     def clean_response(response):
-#         """
-#         Cleans the LLM response by extracting and validating Python code.
-
-#         Args:
-#             response (str): The raw response from the LLM.
-
-#         Returns:
-#             str: The cleaned Python code.
-
-#         Raises:
-#             ValueError: If no valid code could be extracted.
-#         """
-#         print("Starting response cleaning process.")
-#         print(f"Raw LLM response:\n{response}")  # Print raw response
-
-#         # Step 1: Extract Python code block
-#         extracted_code = LLMResponseCleaner.extract_code_block(response)
-
-#         # Step 2: Remove empty lines or lines with only backticks
-#         cleaned_lines = [
-#             line for line in extracted_code.splitlines()
-#             if line.strip() and not line.strip().startswith("```")
-#         ]
-#         cleaned_code = "\n".join(cleaned_lines)
-#         print(f"Cleaned code after processing:\n{cleaned_code}")  # Print cleaned code
-
-#         # Step 3: Validate the cleaned code
-#         try:
-#             return LLMResponseCleaner.validate_code(cleaned_code)
-#         except SyntaxError:
-#             print("No valid Python code could be extracted after cleaning.")
-#             raise ValueError("Failed to clean the LLM response: No valid code found.")
-
-
-# class LLMResponseCleaner:
-#     """
-#     Cleans the LLM response to retain only valid Python code.
-#     """
-
-#     @staticmethod
-#     def extract_code_block(response):
-#         """
-#         Extracts the Python code block from the LLM response.
-    
-#         Args:
-#             response (str): The raw response from the LLM.
-    
-#         Returns:
-#             str: The extracted Python code block, or the original response if no block is found.
-#         """
-#         lines = response.splitlines()
-#         code_lines = []
-#         in_code_block = False
-    
-#         for line in lines:
-#             if line.strip().startswith("```python"):
-#                 in_code_block = True
-#                 continue
-#             elif line.strip().startswith("```"):
-#                 in_code_block = False
-#                 continue
-    
-#             if in_code_block:
-#                 code_lines.append(line)
-    
-#         if code_lines:
-#             logging.info("Extracted Python code block successfully.")
-#             logging.debug(f"Extracted code block:\n{code_lines}")  # Log extracted lines here
-#         else:
-#             logging.warning("No Python code block found. Returning the original response.")
-    
-#         return "\n".join(code_lines) if code_lines else response
-
-    
-#     # def extract_code_block(response):
-#     #     lines = response.splitlines()
-#     #     code_lines = []
-#     #     in_code_block = False
-    
-#     #     for line in lines:
-#     #         if line.strip().startswith("```python"):
-#     #             in_code_block = True
-#     #             continue
-#     #         elif line.strip().startswith("```"):
-#     #             in_code_block = False
-#     #             continue
-    
-#     #         if in_code_block:
-#     #             code_lines.append(line)
-    
-#     #     if code_lines:
-#     #         logging.info("Extracted Python code block successfully.")
-#     #         return "\n".join(code_lines)
-    
-#     #     # Fallback: Treat the whole response as code if no block is found
-#     #     logging.warning("No Python code block found. Treating entire response as code.")
-#     #     return response
-
-    
-#     # def extract_code_block(response):
-#     #     """
-#     #     Extracts the Python code block from the LLM response.
-
-#     #     Args:
-#     #         response (str): The raw response from the LLM.
-
-#     #     Returns:
-#     #         str: The extracted Python code block, or the original response if no block is found.
-#     #     """
-#     #     lines = response.splitlines()
-#     #     code_lines = []
-#     #     in_code_block = False
-
-#     #     for line in lines:
-#     #         # Start of a code block
-#     #         if line.strip().startswith("```python"):
-#     #             in_code_block = True
-#     #             continue
-#     #         # End of a code block
-#     #         elif line.strip().startswith("```"):
-#     #             in_code_block = False
-#     #             continue
-
-#     #         # Collect lines inside the code block
-#     #         if in_code_block:
-#     #             code_lines.append(line)
-
-#     #     if code_lines:
-#     #         logging.info("Extracted Python code block successfully.")
-#     #     else:
-#     #         logging.warning("No Python code block found. Returning the original response.")
-
-#     #     return "\n".join(code_lines) if code_lines else response
-
-#     @staticmethod
-#     def validate_code(response):
-#         try:
-#             # Strip unintended prefixes before validation
-#             cleaned_response = "\n".join(line.lstrip("- ") for line in response.splitlines())
-#             ast.parse(cleaned_response)
-#             logging.info("Python code validated successfully.")
-#             return cleaned_response
-#         except SyntaxError as e:
-#             logging.warning(f"SyntaxError encountered during validation: {e}")
-#             raise
-
-    
-#     # def validate_code(response):
-#     #     """
-#     #     Validates the Python code using the `ast` module.
-
-#     #     Args:
-#     #         response (str): The cleaned Python code.
-
-#     #     Returns:
-#     #         str: The validated Python code.
-
-#     #     Raises:
-#     #         SyntaxError: If the code is invalid.
-#     #     """
-#     #     try:
-#     #         ast.parse(response)
-#     #         logging.info("Python code validated successfully.")
-#     #         return response
-#     #     except SyntaxError as e:
-#     #         logging.warning(f"SyntaxError encountered during validation: {e}")
-#     #         raise
-
-#     @staticmethod
-#     def clean_response(response):
-#         """
-#         Cleans the LLM response by extracting and validating Python code.
-
-#         Args:
-#             response (str): The raw response from the LLM.
-
-#         Returns:
-#             str: The cleaned Python code.
-
-#         Raises:
-#             ValueError: If no valid code could be extracted.
-#         """
-#         logging.info("Starting response cleaning process.")
-#         logging.debug(f"Raw LLM response:\n{response}")  # Log raw response here
-
-#         # Step 1: Extract Python code block
-#         extracted_code = LLMResponseCleaner.extract_code_block(response)
-
-#         # Step 2: Remove empty lines or lines with only backticks
-#         cleaned_lines = [
-#             line for line in extracted_code.splitlines()
-#             if line.strip() and not line.strip().startswith("```")
-#         ]
-#         cleaned_code = "\n".join(cleaned_lines)
-#         logging.debug(f"Cleaned code after processing:\n{cleaned_code}")  # Log cleaned code here
-
-
-#         # Step 3: Validate the cleaned code
-#         try:
-#             return LLMResponseCleaner.validate_code(cleaned_code)
-#         except SyntaxError:
-#             logging.error("No valid Python code could be extracted after cleaning.")
-#             raise ValueError("Failed to clean the LLM response: No valid code found.")
