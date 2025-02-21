@@ -1,6 +1,7 @@
 import ast
 import logging
 import textwrap
+from typing import Optional
 
 class CodeBlockExtractor:
     """
@@ -280,121 +281,72 @@ class CodeReconstructor:
 
 
 
+###################################
+#        LLMResponseCleaner       #
+###################################
 class LLMResponseCleaner:
     """
-    Cleans the LLM response to retain only valid Python code.
+    Cleans a Large Language Model (LLM) response to isolate valid Python code.
+
+    Typical pipeline:
+      1) Extract Python code block from the raw LLM text (```python ... ```).
+      2) Normalize code (remove bullet prefixes, unify indentation).
+      3) Validate. If invalid, attempt reconstruction (docstring closure, indentation fix).
+      4) (Optionally) select a named function if multiple exist.
     """
 
     @staticmethod
-    def extract_code_block(response):
+    def clean_response(response: str, function_name: Optional[str] = None) -> str:
         """
-        Extracts the Python code block from the LLM response.
+        High-level method to clean the LLM's response.
 
-        Args:
-            response (str): The raw response from the LLM.
-
-        Returns:
-            str: The extracted Python code block, or the original response if no block is found.
-        """
-        lines = response.splitlines()
-        code_lines = []
-        in_code_block = False
-
-        for line in lines:
-            if line.strip().startswith("```python"):
-                in_code_block = True
-                continue
-            elif line.strip().startswith("```"):
-                in_code_block = False
-                continue
-
-            if in_code_block:
-                code_lines.append(line)
-
-        if code_lines:
-            print("Extracted Python code block successfully.")
-            print(f"Extracted code block:\n{code_lines}")  # Print extracted lines
-        else:
-            print("No Python code block found. Returning the original response.")
-
-        return "\n".join(code_lines) if code_lines else response
-
-    @staticmethod
-    def validate_code(response):
-        """
-        Validates the Python code using the `ast` module.
-
-        Args:
-            response (str): The cleaned Python code.
-
-        Returns:
-            str: The validated Python code.
+        Steps:
+          1. Extract code via CodeBlockExtractor.
+          2. Normalize code with CodeNormalizer.
+          3. Validate code with CodeValidator.
+          4. If invalid, run CodeReconstructor. Re-validate.
+          5. If function_name is provided, narrow down to that function with CodeSelector.
 
         Raises:
-            SyntaxError: If the code is invalid.
-        """
-        try:
-            # Strip unintended prefixes before validation
-            cleaned_response = "\n".join(line.lstrip("- ") for line in response.splitlines())
-            print(f"Validating cleaned response:\n{cleaned_response}")  # Debug cleaned response
-            ast.parse(cleaned_response)
-            print("Python code validated successfully.")
-            return cleaned_response
-        except SyntaxError as e:
-            print(f"SyntaxError encountered during validation: {e}")
-            raise
+          ValueError: If the code cannot be made valid, or if function_name is not found (when provided).
 
-    @staticmethod
-    def clean_response(response, function_name=None):
-        """
-        Cleans the LLM response by extracting and validating Python code.
-    
-        Args:
-            response (str): The raw response from the LLM.
-            function_name (str, optional): The target function name for selection.
-    
         Returns:
-            str: The cleaned Python code.
-    
-        Raises:
-            ValueError: If no valid code could be extracted.
+          str: The final, cleaned Python code.
         """
-        logging.info("Starting response cleaning process.")
-        logging.debug(f"Raw LLM response:\n{response}")  # Debugging raw LLM response
-    
-        # Step 1: Extract Python code block
+        logging.info("Starting response cleaning process...")
+        logging.debug(f"Raw LLM response:\n{response}")
+
+        # Step 1: Extract potential python code block
         extracted_code = CodeBlockExtractor.extract_code_block(response)
-        logging.debug(f"Extracted code block:\n{extracted_code}")  # Debug extracted code
-    
-        # Step 2: Normalize the code
+        logging.debug(f"Extracted code block:\n{extracted_code}")
+
+        # Step 2: Normalize
         normalized_code = CodeNormalizer.normalize_code(extracted_code)
-        logging.debug(f"Normalized code:\n{normalized_code}")  # Debug normalized code
-    
-        # Step 3: Validate the cleaned code
+        logging.debug(f"Normalized code:\n{normalized_code}")
+
+        # Step 3: Validate
         if not CodeValidator.validate_code(normalized_code):
-            logging.warning("Validation failed. Attempting reconstruction...")
+            # Step 4: Attempt reconstruction
+            logging.warning("Initial validation failed. Attempting reconstruction.")
             try:
-                normalized_code = CodeReconstructor.reconstruct_code(normalized_code)
-                logging.debug(f"Reconstructed code:\n{normalized_code}")  # Debug reconstructed code
-    
-                if not CodeValidator.validate_code(normalized_code):
+                reconstructed = CodeReconstructor.reconstruct_code(normalized_code)
+                if not CodeValidator.validate_code(reconstructed):
                     raise ValueError("Reconstructed code is still invalid.")
+                normalized_code = reconstructed
+                logging.info("Reconstruction successful.")
             except ValueError as e:
                 logging.error(f"Code reconstruction failed: {e}")
                 raise ValueError(f"Code reconstruction failed: {e}")
-    
+
+        # Step 5: If we only want a single function, select it
         if function_name:
             try:
-                normalized_code = CodeSelector.select_relevant_function(normalized_code, function_name)
-                logging.info(f"Final cleaned code:\n{normalized_code}")
+                final_code = CodeSelector.select_relevant_function(normalized_code, function_name)
+                logging.debug(f"Final code after function selection:\n{final_code}")
+                return final_code
             except ValueError as e:
+                # The relevant function was not found
+                logging.error(f"Function selection failed: {e}")
                 raise ValueError(f"Function selection failed: {e}")
 
-    
-        logging.info("Final cleaned code:")
-        logging.info(f"\n{normalized_code}")
-    
         return normalized_code
-
-
-
