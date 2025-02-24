@@ -98,7 +98,8 @@ class LLMCodeGenerator:
             prompt_dir (str): Directory containing prompt templates.
         """
         self.model_client = ModelAPIFactory.get_model_api(provider=model_provider, model=model)
-        self.prompt_manager = PromptManager(prompt_dir)
+        # self.prompt_manager = PromptManager(prompt_dir)
+        self.prompt_manager = PromptManager()
         logging.basicConfig(level=logging.INFO)
 
     def generate_code(self, prompt_name, placeholders, retries=3, delay=5):
