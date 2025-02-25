@@ -10,7 +10,7 @@ You can install DynamicFunctioneer directly from PyPI with a single command:
 ```bash
 pip install dynamic-functioneer
 ```
-This is the simplest way to get started if you only want to use the package.
+This is the simplest way to get started with the package. You will also need to export the API key of your LLM models.
 
 ## Alternative Installation (from source)
 If you prefer to work with the source code —for example, to develop or debug DynamicFunctioneer— you can install it from GitHub. To do this, you’ll need to use uv to manage your virtual environment and dependencies.
