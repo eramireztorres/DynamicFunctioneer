@@ -124,7 +124,7 @@ The `@dynamic_function` decorator dynamically generates, tests, and improves the
 
 ### Arguments
 
-- **`model`** *(str, default="gpt-4o")*  
+- **`model`** *(str, default="gpt-4o-mini")*  
   Specifies the LLM to use for generating the function or method code.
 
 - **`prompt`** *(str, optional)*  
