@@ -2,10 +2,20 @@
 Auto-generate and improve Python methods with decorators powered by LLMs.
 
 ## Prerequisites
-
 A version of Python 3.8 or higher is required.
 
-Before proceeding, install uv to manage the virtual environment and dependencies:
+## Quick Installation
+You can install DynamicFunctioneer directly from PyPI with a single command:
+
+```bash
+pip install dynamic-functioneer
+```
+This is the simplest way to get started if you only want to use the package.
+
+## Alternative Installation (from source)
+If you prefer to work with the source code —for example, to develop or debug DynamicFunctioneer— you can install it from GitHub. To do this, you’ll need to use uv to manage your virtual environment and dependencies.
+
+Before proceeding, install uv (if you haven’t already):
 
 For macOS and Linux:
 
