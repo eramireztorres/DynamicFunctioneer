@@ -1,5 +1,6 @@
 from dynamic_functioneer.openai_model_api import OpenAIModelAPI
 from dynamic_functioneer.llama_model_api import LlamaModelAPI
+from dynamic_functioneer.gemini_model_api import GeminiModelAPI
 
 class ModelAPIFactory:
     """
@@ -14,7 +15,19 @@ class ModelAPIFactory:
         'gpt': 'openai',
         'gpt-4o': 'openai',
         'gpt-4o-mini': 'openai',
-        'llama': 'llama'
+        'o1-': 'openai',
+        'o3-': 'openai',
+        'llama': 'llama',
+        'gemini': 'google',
+        'deepseek': 'deepseek',
+        'cognitivecomputations/': 'openrouter',
+        'google/': 'openrouter',
+        'mistralai/': 'openrouter',
+        'qwen/': 'openrouter',
+        'meta-llama/': 'openrouter',
+        'deepseek/': 'openrouter',
+        'nvidia/': 'openrouter',
+        'microsoft/': 'openrouter'
     }
 
     @classmethod
@@ -34,8 +47,6 @@ class ModelAPIFactory:
         Deduce the provider from the model string.
         Returns 'llama' if no known substring is found.
         """
-     
-       
         for key, provider in cls._model_to_provider.items():
             if key in model_name:
                 return provider
@@ -58,7 +69,6 @@ class ModelAPIFactory:
         Raises:
             ValueError: If neither provider nor model is recognized.
         """
-        
         if not provider and model:
             provider = cls.get_provider_from_model(model)           
         if provider and provider.lower() in cls._model_registry:           
@@ -71,3 +81,6 @@ class ModelAPIFactory:
 # Register the models with the factory
 ModelAPIFactory.register_model('openai', OpenAIModelAPI)
 ModelAPIFactory.register_model('llama', LlamaModelAPI)
+ModelAPIFactory.register_model('google', GeminiModelAPI)
+ModelAPIFactory.register_model('deepseek', LlamaModelAPI)
+ModelAPIFactory.register_model('openrouter', LlamaModelAPI)

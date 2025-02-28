@@ -17,8 +17,9 @@ setup(
         # "openai==1.55.3",
         # "openai",
         "openai==1.64.0",
-        "httpx==0.27.2",
-        "requests==2.32.3"
+        "httpx==0.28.1",
+        "requests==2.32.3",
+        "google-genai==1.3.0"
     ],
     extras_require={
         "dev": [
