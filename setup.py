@@ -10,7 +10,7 @@ setup(
     license="MIT",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
-    python_requires=">=3.8",
+    python_requires=">=3.9",
     install_requires=[
         "astunparse",
         "uv",
@@ -19,7 +19,8 @@ setup(
         "openai==1.64.0",
         "httpx==0.28.1",
         "requests==2.32.3",
-        "google-genai==1.3.0"
+        "google-genai==1.3.0",
+        'anthropic==0.49.0'
     ],
     extras_require={
         "dev": [

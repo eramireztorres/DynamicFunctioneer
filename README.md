@@ -2,7 +2,7 @@
 Auto-generate and improve Python methods with decorators powered by LLMs.
 
 ## Prerequisites
-A version of Python 3.8 or higher is required.
+A version of Python 3.9 or higher is required.
 
 ## Quick Installation
 You can install DynamicFunctioneer directly from PyPI with a single command:
@@ -91,21 +91,11 @@ Or in windows:
 setx OPENAI_API_KEY "your_openai_api_key_here"
 ```
 
-### Other Models via OpenRouter
+You can export API keys for other model providers in a similar way by using the corresponding environment variable names:
 
-To use Llama, Gemini or models with OpenRouter, follow these steps:
-
-1. Visit [OpenRouter](https://openrouter.ai/) and log in or create an account.
-2. Navigate to the API keys section in your account dashboard and generate a new API key.
-3. Export the API key as an environment variable:
-   - For Linux or macOS:
-     ```bash
-     export OPENROUTER_API_KEY='your_openrouter_api_key_here'
-     ```
-   - For Windows:
-     ```bash
-     setx OPENROUTER_API_KEY "your_openrouter_api_key_here"
-     ```
+- **Gemini**: Use GEMINI_API_KEY
+- **Anthropic**: Use ANTHROPIC_API_KEY
+- **OpenRouter**: Use OPENROUTER_API_KEY
      
 ### Overview
 
