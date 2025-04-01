@@ -4,6 +4,7 @@ import importlib
 import os
 from functools import wraps
 import ast
+from inspect import signature
 from dynamic_functioneer.dynamic_code_manager import DynamicCodeManager
 from dynamic_functioneer.llm_code_generator import LLMCodeGenerator
 from dynamic_functioneer.hot_swap_executor import HotSwapExecutor
@@ -41,17 +42,17 @@ def _extract_class_code(module, class_name):
 
 
 def dynamic_function(
-    model="gpt-4o",
+    model="gpt-4o-mini",
     prompt=None,
     dynamic_file=None,
     dynamic_test_file=None,
     extra_info=None,
     fix_dynamically=True,
     error_trials=3,
-    error_model="gpt-4o",
+    error_model="gpt-4o-mini",
     error_prompt=None,
     hs_condition=None,
-    hs_model="gpt-4o",
+    hs_model="gpt-4o-mini",
     hs_prompt=None,
     execution_context=None,
     keep_ok_version=True,
@@ -94,6 +95,41 @@ def dynamic_function(
                     is_method=True,
                     class_code=class_code
                 )
+                
+                
+                # Evaluate hs_condition before generating code
+                should_hot_swap = False
+                if isinstance(hs_condition, bool):
+                    should_hot_swap = hs_condition
+                elif isinstance(hs_condition, str):
+                    try:
+                        # local_args = dict(zip(func.__code__.co_varnames, args))
+                        # local_args.update(kwargs)
+                        
+
+
+                        try:
+                            sig = signature(func)
+                            bound_args = sig.bind(self, *args, **kwargs)
+                            bound_args.apply_defaults()
+                            local_args = bound_args.arguments  # This is an OrderedDict
+                        except Exception as e:
+                            logging.warning(f"Failed to bind arguments for hs_condition: {e}")
+                            local_args = {}
+
+                        
+                        should_hot_swap = eval(hs_condition, {}, local_args)
+                    except Exception as e:
+                        logging.warning(f"Failed to evaluate hs_condition: {e}")
+                        should_hot_swap = False
+                
+                if should_hot_swap:
+                    logging.info(f"Triggering hot-swap for {function_name}...")
+                    hot_swap_executor.perform_hot_swap(
+                        function_name=function_name,
+                        hs_prompt=hs_prompt,
+                        hs_model=hs_model
+                    )                
             
                 if not code_manager.code_exists():
                     # logging.info(f"Generating initial code for method {function_name}...")
@@ -235,6 +271,40 @@ def dynamic_function(
                     is_method=False,
                     class_code=None
                 )
+                
+                
+                # Evaluate hs_condition before generating code
+                should_hot_swap = False
+                if isinstance(hs_condition, bool):
+                    should_hot_swap = hs_condition
+                elif isinstance(hs_condition, str):
+                    try:
+                        # local_args = dict(zip(func.__code__.co_varnames, args))
+                        # local_args.update(kwargs)                      
+
+
+                        try:
+                            sig = signature(func)
+                            bound_args = sig.bind(*args, **kwargs)
+                            bound_args.apply_defaults()
+                            local_args = bound_args.arguments  # This is an OrderedDict
+                        except Exception as e:
+                            logging.warning(f"Failed to bind arguments for hs_condition: {e}")
+                            local_args = {}
+                            
+                        should_hot_swap = eval(hs_condition, {}, local_args)
+                    except Exception as e:
+                        logging.warning(f"Failed to evaluate hs_condition: {e}")
+                        should_hot_swap = False
+                
+                if should_hot_swap:
+                    logging.info(f"Triggering hot-swap for {function_name}...")
+                    hot_swap_executor.perform_hot_swap(
+                        function_name=function_name,
+                        hs_prompt=hs_prompt,
+                        hs_model=hs_model
+                    )    
+                
 
                 # Generate or load code
                 if not code_manager.code_exists():

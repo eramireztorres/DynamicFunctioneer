@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="dynamic_functioneer",
-    version="0.1.1",
+    version="1.1.0",
     description="A Python package for dynamic function and method handling with LLM support.",
     author="Erick Eduardo Ramirez Torres",
     author_email="erickeduardoramireztorres@gmail.com",

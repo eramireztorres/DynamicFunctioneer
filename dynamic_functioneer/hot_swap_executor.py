@@ -1,6 +1,10 @@
 import logging
 import os
 from textwrap import dedent
+from dynamic_functioneer.llm_code_generator import LLMCodeGenerator
+from dynamic_functioneer.prompt_code_cleaner import DynamicFunctionCleaner
+from dynamic_functioneer.llm_response_cleaner import LLMResponseCleaner
+
 
 class HotSwapExecutor:
     """
@@ -145,6 +149,55 @@ class HotSwapExecutor:
     
         logging.warning(f"No test code provided for {function_name}. Skipping test execution.")
         return True
+
+
+    def perform_hot_swap(self, function_name, hs_prompt=None, hs_model=None):
+        """
+        Performs hot-swapping by improving existing code using LLM.
+    
+        Args:
+            function_name (str): The function/method to improve.
+            hs_prompt (str or None): Custom prompt text or path.
+            hs_model (str or None): Model name for LLM.
+    
+        Returns:
+            bool: True if improvement succeeded and code was saved.
+        """
+        if not self.code_manager.code_exists():
+            logging.warning(f"Cannot hot-swap: dynamic file for {function_name} not found.")
+            return False
+    
+        try:
+            current_code = self.code_manager.load_code()
+            generator = LLMCodeGenerator(model=hs_model)
+    
+            if hs_prompt:
+                if os.path.exists(hs_prompt):
+                    with open(hs_prompt, "r") as f:
+                        prompt_text = f.read()
+                else:
+                    prompt_text = hs_prompt
+    
+                rendered_prompt = prompt_text.replace("{code}", current_code)
+                raw_response = generator.model_client.get_response(rendered_prompt)
+            else:
+                raw_response = generator.hot_swap_improvement(
+                                    current_code=current_code,
+                                    execution_context=None,
+                                    hot_swap_condition=None
+                                )
+
+    
+            # ✅ Use LLMResponseCleaner to properly sanitize and extract the final code
+            cleaned_code = LLMResponseCleaner.clean_response(raw_response, function_name=function_name)
+    
+            self.code_manager.save_code(cleaned_code)
+            logging.info(f"Hot-swapped code saved for {function_name}.")
+            return True
+    
+        except Exception as e:
+            logging.error(f"Hot-swap failed for {function_name}: {e}", exc_info=True)
+            return False
 
 
 

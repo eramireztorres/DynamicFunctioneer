@@ -117,9 +117,6 @@ The `@dynamic_function` decorator dynamically generates, tests, and improves the
 - **`model`** *(str, default="gpt-4o-mini")*  
   Specifies the LLM to use for generating the function or method code.
 
-- **`prompt`** *(str, optional)*  
-  A custom prompt to guide the LLM for generating code. If `None`, a default prompt is used.
-
 - **`dynamic_file`** *(str, optional)*  
   Path to the file where the dynamically generated function/method code will be stored. Defaults to a file in the same directory as the decorated function or method.
 
@@ -148,7 +145,7 @@ The `@dynamic_function` decorator dynamically generates, tests, and improves the
   The LLM model to use for hot-swapping logic when the `hs_condition` is met.
 
 - **`hs_prompt`** *(str, optional)*  
-  A custom prompt to guide the LLM for hot-swapping the function or method.
+  A custom prompt to guide the LLM for hot-swapping the function or method. Must include the {code} placeholder to get the current version of the function/method.
 
 - **`execution_context`** *(dict, optional)*  
   A dictionary of additional context or variables required during code execution or testing.
