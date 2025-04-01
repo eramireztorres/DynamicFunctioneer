@@ -204,24 +204,20 @@ class LLMCodeGenerator:
         }
         return self.generate_code("error_correction_prompt.txt", placeholders)
 
-    def hot_swap_improvement(self, current_code, execution_context, hot_swap_condition):
+    def hot_swap_improvement(self, current_code, execution_context, hot_swap_condition, 
+                             hot_swapping_prompt="hot_swapping_prompt.txt"):
         """
         Requests a performance or functionality improvement for a function/method.
 
         Args:
             current_code (str): The current version of the function/method code.
-            execution_context (dict): Context of the function's usage (e.g., input patterns, frequency).
-            hot_swap_condition (str): The condition triggering the hot-swapping.
-
         Returns:
             str: The improved code.
         """
         placeholders = {
             "code": current_code,
-            "execution_context": execution_context,
-            "hot_swap_condition": hot_swap_condition
         }
-        return self.generate_code("hot_swapping_prompt.txt", placeholders)
+        return self.generate_code(hot_swapping_prompt, placeholders)
 
     def generate_test_logic(self, corrected_code, prompt="default_test_prompt.txt"):
         """
@@ -239,7 +235,8 @@ class LLMCodeGenerator:
         }
         return self.generate_code(prompt, placeholders)
 
-    def generate_function_test_logic(self, function_code, extra_info=""):
+    def generate_function_test_logic(self, function_code, extra_info="", 
+                                     test_function_prompt="test_function_prompt.txt"):
         """
         Generates test logic for a function.
         """
@@ -247,9 +244,10 @@ class LLMCodeGenerator:
             "function_code": function_code,
             "extra_info": extra_info
         }
-        return self.generate_code("test_function_prompt.txt", placeholders)
+        return self.generate_code(test_function_prompt, placeholders)
 
-    def generate_method_test_logic(self, class_definition, method_header, extra_info=""):
+    def generate_method_test_logic(self, class_definition, method_header, extra_info="",
+                                   test_method_prompt="test_method_prompt.txt"):
         """
         Generates test logic for a method in a class.
         """
@@ -258,6 +256,6 @@ class LLMCodeGenerator:
             "method_header": method_header,
             "extra_info": extra_info
         }
-        return self.generate_code("test_method_prompt.txt", placeholders)
+        return self.generate_code(test_method_prompt, placeholders)
 
 

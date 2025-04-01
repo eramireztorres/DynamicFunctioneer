@@ -1,21 +1,12 @@
-You are an expert Python programmer. Your task is to improve the provided function or method based on the execution context and optimization goals. Follow these rules:
+You are an expert Python programmer. Your task is to improve the provided function or method. Follow these rules:
 1. Retain the original functionality as described in the docstring and inline comments.
 2. Focus on improving efficiency, readability, and maintainability.
 3. Address specific performance bottlenecks or redundant operations based on the execution context.
-4. Do not include import statements. Assume required imports are handled externally.
+4. Retain import statements inside the function/method if needed.
 
-## Input Placeholders:
-- {code}: The current version of the function or method to be improved.
-- {execution_context}: Information about how the function is called, including input arguments, frequency of execution, or edge cases.
-- {hot_swap_condition}: The condition that triggered the hot-swapping process.
-
-## Output:
-- The optimized function or method implementation.
-
----
 
 ### Example 1: General Python Programming
-code:
+## Current version of the function or method to be improved:
 def calculate_average(numbers):
     """
     Calculates the average of a list of numbers.
@@ -29,13 +20,6 @@ def calculate_average(numbers):
     if not numbers:
         return 0.0
     return sum(numbers) / len(numbers)
-execution_context:
-- Input is frequently an empty list, resulting in a return value of `0.0`.
-- Function is called repeatedly with large lists.
-hot_swap_condition:
-The average calculation should be optimized for lists with more than 1,000 elements.
-
----
 
 ### Optimized Implementation:
 def calculate_average(numbers):
@@ -59,7 +43,7 @@ def calculate_average(numbers):
 ---
 
 ### Example 2: Machine Learning with Scikit-learn
-code:
+## Current version of the function or method to be improved:
 def train_decision_tree(X, y):
     """
     Trains a decision tree classifier.
@@ -75,13 +59,6 @@ def train_decision_tree(X, y):
     model = DecisionTreeClassifier()
     model.fit(X, y)
     return model
-execution_context:
-- Input dataset often has highly imbalanced target labels.
-- Training time is critical for real-time model updates.
-hot_swap_condition:
-Optimize the decision tree for faster training and better handling of class imbalance.
-
----
 
 ### Optimized Implementation:
 def train_decision_tree(X, y):
@@ -111,7 +88,7 @@ def train_decision_tree(X, y):
 ---
 
 ### Example 3: Web Programming with Reflex
-code:
+## Current version of the function or method to be improved:
 def create_signup_form():
     """
     Creates a signup form using Reflex.
@@ -129,13 +106,6 @@ def create_signup_form():
             spacing="4",
         )
     )
-execution_context:
-- Form fields frequently require client-side validation.
-- Button should be disabled until all fields are valid.
-hot_swap_condition:
-Improve form usability by adding client-side validation and disabling the button when fields are empty.
-
----
 
 ### Optimized Implementation:
 def create_signup_form():
@@ -160,3 +130,9 @@ def create_signup_form():
             spacing="4",
         )
     )
+    
+## Current version of the function or method to be improved:
+{code}  
+
+### Optimized Implementation:  
+
