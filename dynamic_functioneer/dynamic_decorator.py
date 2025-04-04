@@ -40,6 +40,22 @@ def _extract_class_code(module, class_name):
     raise ValueError(f"Class {class_name} not found in module {module.__name__}")
 
 
+def is_class_method(func):
+    """
+    Detects if the function is a class method defined at the top level of a class.
+    This avoids mistaking nested functions for methods.
+    """
+    qualname = func.__qualname__
+    if "<locals>" in qualname:
+        return False  # It's a nested function
+
+    try:
+        params = list(inspect.signature(func).parameters.keys())
+        return len(params) > 0 and params[0] in {"self", "cls"}
+    except (ValueError, TypeError):
+        return False
+
+
 
 def dynamic_function(
     model="gpt-4o-mini",
@@ -66,7 +82,9 @@ def dynamic_function(
         module_name = os.path.splitext(os.path.basename(script_file_path))[0]  # Extract module name
         # function_name = func.__name__
 
-        is_method = "." in func.__qualname__
+        # is_method = "." in func.__qualname__
+        is_method = is_class_method(func)
+
 
         if is_method:
             # Wrapper for methods           
