@@ -5,13 +5,12 @@ from dynamic_functioneer.anthropic_model_api import AnthropicModelAPI
 
 class ModelAPIFactory:
     """
-    Factory class to instantiate model API clients based on the provider name or model string.
+    Factory class to instantiate model API clients based on the provider name, model string, or alias.
     """
 
-    # Class-level registry mapping provider names to model API classes
     _model_registry = {}
+    _custom_models = {}
 
-    # Map models to providers
     _model_to_provider = {
         'gpt': 'openai',
         'gpt-4o': 'openai',
@@ -34,53 +33,47 @@ class ModelAPIFactory:
 
     @classmethod
     def register_model(cls, provider_name, model_class):
-        """
-        Register a new model API class with the factory.
-
-        Args:
-            provider_name (str): The name of the provider (e.g., 'openai', 'llama').
-            model_class (class): The model API class to register.
-        """
         cls._model_registry[provider_name.lower()] = model_class
 
     @classmethod
-    def get_provider_from_model(cls, model_name):
+    def register_custom_model(cls, alias: str, factory_function):
         """
-        Deduce the provider from the model string.
-        Returns 'llama' if no known substring is found.
+        Register a custom model alias (like 'crew-4-agent') mapped to a callable factory.
         """
+        cls._custom_models[alias] = factory_function
+
+    @classmethod
+    def list_available_models(cls):
+        """
+        Return a list of all known provider models and custom aliases.
+        """
+        return list(cls._model_registry.keys()) + list(cls._custom_models.keys())
+
+    @classmethod
+    def get_provider_from_model(cls, model_name: str) -> str:
         for key, provider in cls._model_to_provider.items():
             if key in model_name:
                 return provider
-        # Fallback to 'llama' for any unknown substring
-        return 'llama'
+        return 'llama'  # fallback
 
     @classmethod
     def get_model_api(cls, provider='llama', model='meta-llama/llama-3.1-405b-instruct:free', **kwargs):
-        """
-        Get an instance of the model API client based on the provider name or model string.
+        # Case 1: Handle custom aliases (e.g., 'sequential-4-agent-crew')
+        if model in cls._custom_models:
+            return cls._custom_models[model](**kwargs)
 
-        Args:
-            provider (str): The name of the provider (e.g., 'openai', 'llama').
-            model (str): The specific model string (e.g., 'gpt-4').
-            **kwargs: Additional keyword arguments to pass to the model class constructor.
-
-        Returns:
-            An instance of the corresponding model API client.
-
-        Raises:
-            ValueError: If neither provider nor model is recognized.
-        """
+        # Case 2: Handle standard provider-based logic
         if not provider and model:
-            provider = cls.get_provider_from_model(model)           
-        if provider and provider.lower() in cls._model_registry:           
+            provider = cls.get_provider_from_model(model)
+
+        if provider and provider.lower() in cls._model_registry:
             model_class = cls._model_registry[provider.lower()]
-            # Pass the model string explicitly to the constructor via kwargs
             return model_class(model=model, **kwargs)
+
         raise ValueError(f"Unknown provider or model: {provider or model}")
 
 
-# Register the models with the factory
+# Register known providers
 ModelAPIFactory.register_model('openai', OpenAIModelAPI)
 ModelAPIFactory.register_model('meta', LlamaModelAPI)
 ModelAPIFactory.register_model('google', GeminiModelAPI)
