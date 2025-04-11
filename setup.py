@@ -3,24 +3,26 @@ from setuptools import setup, find_packages
 
 setup(
     name="dynamic_functioneer",
-    version="1.1.0",
+    version="1.2.0",
     description="A Python package for dynamic function and method handling with LLM support.",
     author="Erick Eduardo Ramirez Torres",
     author_email="erickeduardoramireztorres@gmail.com",
     license="MIT",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
-    python_requires=">=3.9",
+    python_requires=">=3.11",
     install_requires=[
         "astunparse",
         "uv",
         # "openai==1.55.3",
         # "openai",
-        "openai==1.64.0",
-        "httpx==0.28.1",
-        "requests==2.32.3",
-        "google-genai==1.3.0",
-        'anthropic==0.49.0'
+        "openai>=1.64.0",
+        "httpx>=0.28.1",
+        "requests>=2.32.3",
+        "google-genai>=1.3.0",
+        "anthropic>=0.49.0",
+        "crewai>=0.114.0",
+        "litellm>=1.65.3"
     ],
     extras_require={
         "dev": [
