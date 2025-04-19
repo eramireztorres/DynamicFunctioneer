@@ -12,3 +12,9 @@ ModelAPIFactory.register_custom_model(
 )
 
 
+ModelAPIFactory.register_custom_model(
+    "crewai-sequential2-google/gemini-2.0-flash",
+    lambda **kwargs: CrewAISequential2ModelAPI(model="crewai-sequential2-google/gemini-2.0-flash", **kwargs)
+)
+
+
