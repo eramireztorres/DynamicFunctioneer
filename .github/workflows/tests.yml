@@ -34,13 +34,9 @@ jobs:
         pip install -e .
         pip install pytest pytest-cov pytest-timeout pytest-mock pytest-asyncio
 
-    - name: Run unit tests
+    - name: Run tests with coverage
       run: |
-        pytest tests/unit -v --cov=dynamic_functioneer --cov-report=xml --cov-report=term-missing
-
-    - name: Run integration tests
-      run: |
-        pytest tests/integration -v
+        pytest tests/ -v --cov=dynamic_functioneer --cov-report=xml --cov-report=term-missing
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v4
