@@ -2,7 +2,7 @@
 Auto-generate and improve Python methods with decorators powered by LLMs.
 
 ## Prerequisites
-A version of Python 3.9 or higher is required.
+A version of Python 3.11 or higher is required.
 
 ## Quick Installation
 You can install DynamicFunctioneer directly from PyPI with a single command:
