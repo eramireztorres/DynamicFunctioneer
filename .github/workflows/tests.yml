@@ -1,0 +1,122 @@
+name: Tests
+
+on:
+  push:
+    branches: [ master, main, develop ]
+  pull_request:
+    branches: [ master, main, develop ]
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  test:
+    name: Test on Python ${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        python-version: ['3.9', '3.10', '3.11', '3.12']
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e .
+        pip install pytest pytest-cov pytest-timeout pytest-mock pytest-asyncio
+
+    - name: Run unit tests
+      run: |
+        pytest tests/unit -v --cov=dynamic_functioneer --cov-report=xml --cov-report=term-missing
+
+    - name: Run integration tests
+      run: |
+        pytest tests/integration -v
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+
+  lint:
+    name: Lint and Type Check
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e .
+        pip install flake8 mypy black isort
+
+    - name: Check code formatting with black
+      run: |
+        black --check dynamic_functioneer tests || echo "Black formatting check failed (non-blocking)"
+      continue-on-error: true
+
+    - name: Check import sorting with isort
+      run: |
+        isort --check-only dynamic_functioneer tests || echo "Import sorting check failed (non-blocking)"
+      continue-on-error: true
+
+    - name: Lint with flake8
+      run: |
+        # Stop the build if there are Python syntax errors or undefined names
+        flake8 dynamic_functioneer --count --select=E9,F63,F7,F82 --show-source --statistics
+        # Exit-zero treats all errors as warnings
+        flake8 dynamic_functioneer --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+      continue-on-error: true
+
+    - name: Type check with mypy
+      run: |
+        mypy dynamic_functioneer --ignore-missing-imports || echo "Type checking failed (non-blocking)"
+      continue-on-error: true
+
+  test-package:
+    name: Test Package Installation
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Build package
+      run: |
+        python -m pip install --upgrade pip build
+        python -m build
+
+    - name: Install package
+      run: |
+        pip install dist/*.whl
+
+    - name: Test import
+      run: |
+        python -c "from dynamic_functioneer import dynamic_function; print('✓ Package imports successfully')"
+        python -c "from dynamic_functioneer.models import ModelAPIFactory; print('✓ Models package imports successfully')"
+        python -c "from dynamic_functioneer import get_config; print('✓ Config system imports successfully')"
