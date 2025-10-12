@@ -1,9 +1,9 @@
 import os
 import logging
 from typing import Optional, Callable, Any
-from dynamic_functioneer.code_storage import CodeFileManager, TestFileManager
-from dynamic_functioneer.code_loader import DynamicModuleLoader
-from dynamic_functioneer.test_runner import TestExecutionStrategy, SubprocessTestRunner
+from dynamic_functioneer.code_management.code_storage import CodeFileManager, TestFileManager
+from dynamic_functioneer.code_management.code_loader import DynamicModuleLoader
+from dynamic_functioneer.code_management.test_runner import TestExecutionStrategy, SubprocessTestRunner
 
 logger = logging.getLogger(__name__)
 

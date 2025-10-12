@@ -5,11 +5,11 @@ import os
 from functools import wraps
 import ast
 from inspect import signature
-from dynamic_functioneer.dynamic_code_manager import DynamicCodeManager
-from dynamic_functioneer.llm_code_generator import LLMCodeGenerator
-from dynamic_functioneer.hot_swap_executor import HotSwapExecutor
-from dynamic_functioneer.llm_response_cleaner import LLMResponseCleaner
-from dynamic_functioneer.prompt_code_cleaner import DynamicFunctionCleaner
+from dynamic_functioneer.code_management.dynamic_code_manager import DynamicCodeManager
+from dynamic_functioneer.code_generation.llm_code_generator import LLMCodeGenerator
+from dynamic_functioneer.code_management.hot_swap_executor import HotSwapExecutor
+from dynamic_functioneer.code_processing.llm_response_cleaner import LLMResponseCleaner
+from dynamic_functioneer.code_processing.prompt_code_cleaner import DynamicFunctionCleaner
 
 
 def _extract_class_code(module, class_name):

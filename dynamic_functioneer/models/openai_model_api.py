@@ -19,7 +19,7 @@ def new_init(self, *args: Any, **kwargs: Any) -> None:
 SyncHttpxClientWrapper.__init__ = new_init
 
 
-from dynamic_functioneer.base_model_api import BaseModelAPI
+from dynamic_functioneer.models.base_model_api import BaseModelAPI
 
 class OpenAIModelAPI(BaseModelAPI):
     """

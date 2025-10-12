@@ -1,7 +1,7 @@
 import os
 import logging
 from typing import Optional, Any
-from dynamic_functioneer.base_model_api import BaseModelAPI
+from dynamic_functioneer.models.base_model_api import BaseModelAPI
 from google import genai
 
 logger = logging.getLogger(__name__)

@@ -2,7 +2,7 @@ import os
 import logging
 from typing import Optional
 import requests
-from dynamic_functioneer.base_model_api import BaseModelAPI
+from dynamic_functioneer.models.base_model_api import BaseModelAPI
 
 logger = logging.getLogger(__name__)
 

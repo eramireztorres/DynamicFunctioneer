@@ -3,9 +3,9 @@ import time
 from pathlib import Path
 import inspect
 import ast
-from dynamic_functioneer.prompt_manager import PromptManager
-from dynamic_functioneer.prompt_code_cleaner import DynamicFunctionCleaner
-from dynamic_functioneer.model_api_factory import ModelAPIFactory
+from dynamic_functioneer.code_generation.prompt_manager import PromptManager
+from dynamic_functioneer.code_processing.prompt_code_cleaner import DynamicFunctionCleaner
+from dynamic_functioneer.models.model_api_factory import ModelAPIFactory
 
 
 def extract_function_signature(func_or_source):

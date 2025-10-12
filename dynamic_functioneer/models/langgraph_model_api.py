@@ -1,4 +1,4 @@
-from dynamic_functioneer.base_model_api import BaseModelAPI
+from dynamic_functioneer.models.base_model_api import BaseModelAPI
 
 class LangGraphModelAPI(BaseModelAPI):
     def __init__(self, graph_id="default", **kwargs):

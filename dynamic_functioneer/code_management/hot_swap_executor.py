@@ -1,9 +1,9 @@
 import logging
 import os
 from textwrap import dedent
-from dynamic_functioneer.llm_code_generator import LLMCodeGenerator
-from dynamic_functioneer.prompt_code_cleaner import DynamicFunctionCleaner
-from dynamic_functioneer.llm_response_cleaner import LLMResponseCleaner
+from dynamic_functioneer.code_generation.llm_code_generator import LLMCodeGenerator
+from dynamic_functioneer.code_processing.prompt_code_cleaner import DynamicFunctionCleaner
+from dynamic_functioneer.code_processing.llm_response_cleaner import LLMResponseCleaner
 
 
 class HotSwapExecutor:
