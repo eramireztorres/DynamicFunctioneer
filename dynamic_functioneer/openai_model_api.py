@@ -1,17 +1,22 @@
 import os
-# import openai
-
+import logging
+from typing import Optional, List, Dict, Any
 import openai
 from openai._base_client import SyncHttpxClientWrapper
 
+logger = logging.getLogger(__name__)
+
+# FIXME: Temporary workaround for OpenAI SDK proxy issues
+# This monkey patch removes the 'proxies' parameter that causes conflicts
+# TODO: Remove this once OpenAI SDK fixes proxy parameter handling
+# See: https://github.com/openai/openai-python/issues/[issue-number]
 _old_init = SyncHttpxClientWrapper.__init__
 
-def new_init(self, *args, **kwargs):
+def new_init(self, *args: Any, **kwargs: Any) -> None:
     kwargs.pop("proxies", None)
     return _old_init(self, *args, **kwargs)
 
 SyncHttpxClientWrapper.__init__ = new_init
-
 
 
 from dynamic_functioneer.base_model_api import BaseModelAPI
@@ -21,18 +26,18 @@ class OpenAIModelAPI(BaseModelAPI):
     A unified OpenAI API client that works with both legacy GPT models and the new reasoning models (o1/o3).
     """
 
-    def __init__(self, api_key=None, model='gpt-4o'):
+    def __init__(self, api_key: Optional[str] = None, model: str = 'gpt-4o') -> None:
         super().__init__(api_key)
         self.api_key = api_key or self.get_api_key_from_env()
         self.model = model
         self.client = openai.OpenAI(api_key=self.api_key)
-        self.conversation_history = []
+        self.conversation_history: List[Dict[str, str]] = []
 
-    def get_api_key_from_env(self):
+    def get_api_key_from_env(self) -> Optional[str]:
         """Retrieve the OpenAI API key from environment variables."""
         return os.getenv('OPENAI_API_KEY')
 
-    def get_response(self, prompt, max_tokens=1024, temperature=0.5):
+    def get_response(self, prompt: str, max_tokens: int = 1024, temperature: float = 0.5) -> Optional[str]:
         """
         Get a response from the OpenAI model.
         Uses `max_completion_tokens` (and omits temperature) for o1/o3 models,
@@ -57,7 +62,7 @@ class OpenAIModelAPI(BaseModelAPI):
         try:
             response = self.client.chat.completions.create(**params)
         except Exception as e:
-            print(f"An error occurred: {e}")
+            logger.error(f"An error occurred: {e}", exc_info=True)
             return None
 
         # Extract and store the assistant's reply.

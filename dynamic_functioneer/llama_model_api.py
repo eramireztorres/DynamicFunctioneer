@@ -1,31 +1,36 @@
 import os
+import logging
+from typing import Optional
 import requests
 from dynamic_functioneer.base_model_api import BaseModelAPI
+
+logger = logging.getLogger(__name__)
+
 
 class LlamaModelAPI(BaseModelAPI):
     """
     Llama model API client.
     """
 
-    def __init__(self, api_key=None, model='meta-llama/llama-3.1-405b-instruct:free'):
+    def __init__(self, api_key: Optional[str] = None, model: str = 'meta-llama/llama-3.1-405b-instruct:free') -> None:
         super().__init__(api_key)
         self.model = model
         self.url = 'https://openrouter.ai/api/v1/chat/completions'
 
-    def get_api_key_from_env(self):
+    def get_api_key_from_env(self) -> Optional[str]:
         """
         Retrieve the Llama API key from environment variables.
         """
-      
+
         return os.getenv('LLAMA_API_KEY') or os.getenv('OPENROUTER_API_KEY')
 
-    def get_response(self, prompt, max_tokens=512, temperature=0.7):
+    def get_response(self, prompt: str, max_tokens: int = 512, temperature: float = 0.7) -> Optional[str]:
         """
         Get a response from the Llama model.
         """
-        
-        print(f'Model: {self.model}')
-        
+
+        logger.info(f'Using model: {self.model}')
+
         messages = [{"role": "user", "content": prompt}]
         payload = {
             "model": self.model,
@@ -47,13 +52,13 @@ class LlamaModelAPI(BaseModelAPI):
                 assistant_response = completion['choices'][0]['message']['content']
                 return assistant_response.strip()
             else:
-                print(f"Unexpected response structure: {completion}")
+                logger.warning(f"Unexpected response structure: {completion}")
                 return None
 
         except requests.exceptions.HTTPError as e:
-            print(f"HTTP Error: {e}")
-            print(f"Response Body: {e.response.text}")
+            logger.error(f"HTTP Error: {e}")
+            logger.error(f"Response Body: {e.response.text}")
             return None
         except Exception as e:
-            print(f"An error occurred: {e}")
+            logger.error(f"An error occurred: {e}", exc_info=True)
             return None

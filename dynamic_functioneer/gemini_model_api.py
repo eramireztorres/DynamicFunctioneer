@@ -1,6 +1,11 @@
 import os
+import logging
+from typing import Optional, Any
 from dynamic_functioneer.base_model_api import BaseModelAPI
 from google import genai
+
+logger = logging.getLogger(__name__)
+
 
 class GeminiModelAPI(BaseModelAPI):
     """
@@ -8,7 +13,7 @@ class GeminiModelAPI(BaseModelAPI):
     and is compatible with BaseModelAPI.
     """
 
-    def __init__(self, api_key=None, model="gemini-2.0-flash"):
+    def __init__(self, api_key: Optional[str] = None, model: str = "gemini-2.0-flash") -> None:
         """
         Initialize the Gemini API client with the provided API key and model.
         """
@@ -16,14 +21,14 @@ class GeminiModelAPI(BaseModelAPI):
         self.model = model
         self.client = genai.Client(api_key=self.api_key)
 
-    def get_api_key_from_env(self):
+    def get_api_key_from_env(self) -> Optional[str]:
         """
         Retrieve the Gemini API key from environment variables.
         Expects the key to be stored in 'GEMINI_API_KEY'.
         """
         return os.getenv("GEMINI_API_KEY")
 
-    def get_response(self, prompt, **kwargs):
+    def get_response(self, prompt: str, **kwargs: Any) -> Optional[str]:
         """
         Get a response from the Gemini model based on the prompt.
         Additional keyword arguments are passed directly to the API call.
@@ -37,10 +42,10 @@ class GeminiModelAPI(BaseModelAPI):
             if response and hasattr(response, "text"):
                 return response.text.strip()
             else:
-                print("No response text available.")
+                logger.warning("No response text available from Gemini API.")
                 return None
         except Exception as e:
-            print(f"An error occurred while fetching response: {e}")
+            logger.error(f"An error occurred while fetching response: {e}", exc_info=True)
             return None
 
 

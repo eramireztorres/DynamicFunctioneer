@@ -1,138 +1,133 @@
 import os
-import importlib
 import logging
-import sys
-import subprocess
+from typing import Optional, Callable, Any
+from dynamic_functioneer.code_storage import CodeFileManager, TestFileManager
+from dynamic_functioneer.code_loader import DynamicModuleLoader
+from dynamic_functioneer.test_runner import TestExecutionStrategy, SubprocessTestRunner
 
+logger = logging.getLogger(__name__)
 
 
 class DynamicCodeManager:
     """
     Manages dynamic generation, saving, and loading of function/method code and test files.
+
+    This class now delegates responsibilities to focused components following SRP:
+    - CodeFileManager: Handles file I/O for code
+    - DynamicModuleLoader: Handles Python module loading
+    - TestFileManager: Handles test file operations
+    - TestExecutionStrategy: Handles test execution
     """
 
-    def __init__(self, dynamic_file_path):
+    def __init__(
+        self,
+        dynamic_file_path: str,
+        test_runner: Optional[TestExecutionStrategy] = None
+    ) -> None:
         """
         Initialize the DynamicCodeManager.
 
         Args:
-            dynamic_file_path (str): Path to the file where dynamic code is stored.
+            dynamic_file_path: Path to the file where dynamic code is stored.
+            test_runner: Optional test execution strategy. Defaults to SubprocessTestRunner.
         """
         self.dynamic_file_path = dynamic_file_path
         self.test_file_dir = "."  # Default directory for test files
-        os.makedirs(self.test_file_dir, exist_ok=True)
-        logging.basicConfig(level=logging.INFO)
 
-    def save_code(self, code):
+        # Delegate to focused components
+        self._code_file_manager = CodeFileManager(dynamic_file_path)
+        self._module_loader = DynamicModuleLoader(dynamic_file_path)
+        self._test_file_manager = TestFileManager(self.test_file_dir)
+        self._test_runner = test_runner or SubprocessTestRunner()
+
+        os.makedirs(self.test_file_dir, exist_ok=True)
+
+    def save_code(self, code: str) -> None:
         """
-        Saves the provided code to the dynamic file.
+        Save the provided code to the dynamic file.
 
         Args:
-            code (str): The code to save.
+            code: The code to save.
         """
-        try:
-            with open(self.dynamic_file_path, 'w') as file:
-                file.write(code)
-            logging.info(f"Dynamic code saved successfully to {self.dynamic_file_path}")
-        except Exception as e:
-            logging.error(f"Failed to save dynamic code: {e}")
+        self._code_file_manager.save_code(code)
 
-    def load_code(self):
+    def load_code(self) -> str:
         """
-        Loads and returns the code from the dynamic file.
+        Load and return the code from the dynamic file.
 
         Returns:
-            str: The code stored in the dynamic file.
+            The code stored in the dynamic file.
 
         Raises:
             FileNotFoundError: If the dynamic file does not exist.
         """
-        if not os.path.exists(self.dynamic_file_path):
-            raise FileNotFoundError(f"Dynamic file '{self.dynamic_file_path}' not found.")
-        
-        with open(self.dynamic_file_path, 'r') as file:
-            return file.read()
+        return self._code_file_manager.load_code()
 
-    def load_function(self, function_name):
+    def load_function(self, function_name: str) -> Callable[..., Any]:
         """
-        Dynamically loads and returns a function by name from the dynamic file.
-    
+        Dynamically load and return a function by name from the dynamic file.
+
         Args:
-            function_name (str): The name of the function to load.
-    
+            function_name: The name of the function to load.
+
         Returns:
-            Callable: The loaded function.
-    
+            The loaded function.
+
         Raises:
             ImportError: If the module or function cannot be loaded.
         """
-        module_name = os.path.splitext(os.path.basename(self.dynamic_file_path))[0]
-        importlib.invalidate_caches()  # Clear cache
-        try:
-            if module_name in sys.modules:
-                del sys.modules[module_name]  # Remove module from cache
-            module = importlib.import_module(module_name)
-            return getattr(module, function_name)
-        except AttributeError:
-            raise ImportError(f"Function '{function_name}' not found in module '{module_name}'.")
-        except Exception as e:
-            raise ImportError(f"Failed to load function '{function_name}': {e}")
+        return self._module_loader.load_function(function_name)
 
-
-    def save_test_file(self, test_file_path, test_code):
+    def save_test_file(self, test_file_path: str, test_code: str) -> None:
         """
-        Saves test code to a specified file.
-    
-        Args:
-            test_file_path (str): Full path to the test file.
-            test_code (str): The test code to save.
-        """
-        try:
-            os.makedirs(os.path.dirname(test_file_path), exist_ok=True)
-            with open(test_file_path, "w") as file:
-                file.write(test_code)
-            logging.info(f"Test code saved successfully to {test_file_path}")            
-        except Exception as e:
-            logging.error(f"Failed to save test code: {e}")
-
-
-    def run_test(self, test_file_name):
-        """
-        Runs a test file and checks if it passes.
+        Save test code to a specified file.
 
         Args:
-            test_file_name (str): The name of the test file to run.
+            test_file_path: Full path to the test file.
+            test_code: The test code to save.
+        """
+        self._test_file_manager.save_test_file(test_file_path, test_code)
+
+    def run_test(self, test_file_path: str) -> bool:
+        """
+        Run a test file and check if it passes.
+
+        Args:
+            test_file_path: Path to the test file to run.
 
         Returns:
-            bool: True if the test passes, False otherwise.
+            True if the test passes, False otherwise.
         """
-        test_file_path = os.path.join(self.test_file_dir, test_file_name)
-        if not os.path.exists(test_file_path):
-            raise FileNotFoundError(f"Test file '{test_file_path}' not found.")
+        return self._test_runner.run_test(test_file_path)
 
-        try:
-            result = subprocess.run(
-                ["python", test_file_path],
-                capture_output=True,
-                text=True
-            )
-            if result.returncode == 0:
-                logging.info("Test passed successfully.")
-                return True
-            else:
-                logging.error(f"Test failed:\n{result.stdout}\n{result.stderr}")
-                return False
-        except Exception as e:
-            logging.error(f"Error running test file '{test_file_name}': {e}")
-            return False
-
-    def code_exists(self):
+    def code_exists(self) -> bool:
         """
-        Checks if the dynamic file exists.
+        Check if the dynamic file exists.
 
         Returns:
-            bool: True if the dynamic file exists, False otherwise.
+            True if the dynamic file exists, False otherwise.
         """
-        return os.path.exists(self.dynamic_file_path)
+        return self._code_file_manager.code_exists()
+
+    # Properties for accessing internal components if needed
+    @property
+    def code_file_manager(self) -> CodeFileManager:
+        """Get the code file manager instance."""
+        return self._code_file_manager
+
+    @property
+    def module_loader(self) -> DynamicModuleLoader:
+        """Get the module loader instance."""
+        return self._module_loader
+
+    @property
+    def test_file_manager(self) -> TestFileManager:
+        """Get the test file manager instance."""
+        return self._test_file_manager
+
+    @property
+    def test_runner(self) -> TestExecutionStrategy:
+        """Get the test runner instance."""
+        return self._test_runner
 
 
