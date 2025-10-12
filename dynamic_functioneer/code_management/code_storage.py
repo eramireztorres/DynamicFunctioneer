@@ -86,13 +86,15 @@ class CodeFileManager:
                 raise
 
 
-class TestFileManager:
+class DynamicTestFileManager:
     """
     Manages test file operations.
 
     Responsibilities:
     - Save test code to files
     - Manage test file paths
+
+    Note: Renamed from TestFileManager to avoid pytest collection warnings.
     """
 
     def __init__(self, test_dir: str = ".") -> None:

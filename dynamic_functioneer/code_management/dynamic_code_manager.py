@@ -1,7 +1,7 @@
 import os
 import logging
 from typing import Optional, Callable, Any
-from dynamic_functioneer.code_management.code_storage import CodeFileManager, TestFileManager
+from dynamic_functioneer.code_management.code_storage import CodeFileManager, DynamicTestFileManager
 from dynamic_functioneer.code_management.code_loader import DynamicModuleLoader
 from dynamic_functioneer.code_management.test_runner import TestExecutionStrategy, SubprocessTestRunner
 
@@ -37,7 +37,7 @@ class DynamicCodeManager:
         # Delegate to focused components
         self._code_file_manager = CodeFileManager(dynamic_file_path)
         self._module_loader = DynamicModuleLoader(dynamic_file_path)
-        self._test_file_manager = TestFileManager(self.test_file_dir)
+        self._test_file_manager = DynamicTestFileManager(self.test_file_dir)
         self._test_runner = test_runner or SubprocessTestRunner()
 
         os.makedirs(self.test_file_dir, exist_ok=True)
@@ -121,7 +121,7 @@ class DynamicCodeManager:
         return self._module_loader
 
     @property
-    def test_file_manager(self) -> TestFileManager:
+    def test_file_manager(self) -> DynamicTestFileManager:
         """Get the test file manager instance."""
         return self._test_file_manager
 

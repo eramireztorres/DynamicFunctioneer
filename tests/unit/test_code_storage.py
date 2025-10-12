@@ -6,7 +6,7 @@ import os
 import tempfile
 import pytest
 from pathlib import Path
-from dynamic_functioneer.code_management.code_storage import CodeFileManager, TestFileManager
+from dynamic_functioneer.code_management.code_storage import CodeFileManager, DynamicTestFileManager
 
 
 class TestCodeFileManager:
@@ -71,12 +71,12 @@ class TestCodeFileManager:
         assert nested_path.parent.exists()
 
 
-class TestTestFileManager:
-    """Test TestFileManager class."""
+class TestDynamicTestFileManager:
+    """Test DynamicTestFileManager class."""
 
     def test_save_test_file(self, tmp_path):
         """Test saving a test file."""
-        manager = TestFileManager(str(tmp_path))
+        manager = DynamicTestFileManager(str(tmp_path))
 
         test_code = "import unittest\n\nclass TestExample(unittest.TestCase):\n    pass"
         test_path = tmp_path / "test_example.py"
@@ -88,14 +88,14 @@ class TestTestFileManager:
 
     def test_get_test_file_path(self, tmp_path):
         """Test generating test file path."""
-        manager = TestFileManager(str(tmp_path))
+        manager = DynamicTestFileManager(str(tmp_path))
 
         path = manager.get_test_file_path("my_function")
         assert path == str(tmp_path / "test_my_function.py")
 
     def test_get_test_file_path_custom_dir(self, tmp_path):
         """Test generating test file path with custom directory."""
-        manager = TestFileManager(str(tmp_path))
+        manager = DynamicTestFileManager(str(tmp_path))
         custom_dir = tmp_path / "custom"
         custom_dir.mkdir()
 
@@ -104,7 +104,7 @@ class TestTestFileManager:
 
     def test_save_test_file_creates_directory(self, tmp_path):
         """Test that save_test_file creates parent directories."""
-        manager = TestFileManager(str(tmp_path))
+        manager = DynamicTestFileManager(str(tmp_path))
         nested_path = tmp_path / "nested" / "test_file.py"
 
         manager.save_test_file(str(nested_path), "test code")
