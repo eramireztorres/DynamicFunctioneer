@@ -2,7 +2,7 @@
 import pytest
 import inspect
 import ast
-from dynamic_functioneer.dynamic_decorator import _extract_class_code, is_class_method
+from dynamic_functioneer.utils.introspection import extract_class_code, is_class_method
 
 
 class MyClassForTest:
@@ -16,7 +16,7 @@ class MyClassForTest:
 class TestDecoratorHelpers:
     def test_extract_class_code(self):
         module = inspect.getmodule(MyClassForTest)
-        class_code = _extract_class_code(module, 'MyClassForTest')
+        class_code = extract_class_code(inspect.getmodule(self.__class__), "TestDecoratorHelpers")
         
         # Basic check to ensure it's a class definition
         assert 'class MyClassForTest:' in class_code

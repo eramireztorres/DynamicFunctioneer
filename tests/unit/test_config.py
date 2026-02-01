@@ -21,7 +21,7 @@ class TestModelConfig:
     def test_default_values(self):
         """Test default configuration values."""
         config = ModelConfig()
-        assert config.default_model == "gpt-4o-mini"
+        assert config.default_model == "gpt-4.1-mini"
         assert config.error_correction_model == "gpt-4o"
         assert config.hot_swap_model == "gpt-4o"
         assert config.max_tokens == 1024
@@ -92,7 +92,7 @@ class TestDynamicFunctioneerConfig:
             monkeypatch.delenv(key, raising=False)
 
         config = DynamicFunctioneerConfig.from_env()
-        assert config.model.default_model == "gpt-4o-mini"  # default
+        assert config.model.default_model == "gpt-4.1-mini"  # default
 
     def test_from_env_with_env_vars(self, monkeypatch):
         """Test from_env with environment variables."""

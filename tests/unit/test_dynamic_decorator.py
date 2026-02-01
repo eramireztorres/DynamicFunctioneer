@@ -8,12 +8,12 @@ from dynamic_functioneer.dynamic_decorator import dynamic_function
 @pytest.fixture
 def mock_dynamic_components():
     """Mocks all external dependencies of the dynamic_decorator."""
-    with patch('dynamic_functioneer.dynamic_decorator.DynamicCodeManager') as mock_code_manager, \
-         patch('dynamic_functioneer.dynamic_decorator.LLMCodeGenerator') as mock_llm_generator, \
-         patch('dynamic_functioneer.dynamic_decorator.HotSwapExecutor') as mock_hot_swap_executor, \
-         patch('dynamic_functioneer.dynamic_decorator.LLMResponseCleaner.clean_response') as mock_llm_cleaner, \
-         patch('dynamic_functioneer.dynamic_decorator.DynamicFunctionCleaner') as mock_dynamic_cleaner, \
-         patch('dynamic_functioneer.dynamic_decorator.TestImportInjector') as mock_import_injector, \
+    with patch('dynamic_functioneer.dynamic_execution_handler.DynamicCodeManager') as mock_code_manager, \
+         patch('dynamic_functioneer.dynamic_execution_handler.LLMCodeGenerator') as mock_llm_generator, \
+         patch('dynamic_functioneer.dynamic_execution_handler.HotSwapExecutor') as mock_hot_swap_executor, \
+         patch('dynamic_functioneer.dynamic_execution_handler.LLMResponseCleaner.clean_response') as mock_llm_cleaner, \
+         patch('dynamic_functioneer.dynamic_execution_handler.DynamicFunctionCleaner') as mock_dynamic_cleaner, \
+         patch('dynamic_functioneer.code_management.test_import_injector.TestImportInjector') as mock_import_injector, \
          patch('os.path.join', return_value='mock/path/to/file.py'), \
          patch('os.path.dirname', return_value='mock/path/to'), \
          patch('os.path.basename', return_value='file.py'), \

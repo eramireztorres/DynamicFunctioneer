@@ -18,7 +18,7 @@ class ModelAPIFactory:
     _model_to_provider: Dict[str, str] = {
         'gpt': 'openai',
         'gpt-4o': 'openai',
-        'gpt-4o-mini': 'openai',
+        'gpt-4.1-mini': 'openai',
         'o1-': 'openai',
         'o3-': 'openai',
         'llama': 'meta',

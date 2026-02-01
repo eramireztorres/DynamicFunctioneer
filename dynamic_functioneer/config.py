@@ -14,7 +14,7 @@ from typing import Optional
 class ModelConfig:
     """Configuration for LLM model settings."""
 
-    default_model: str = "gpt-4o-mini"
+    default_model: str = "gpt-4.1-mini"
     error_correction_model: str = "gpt-4o"
     hot_swap_model: str = "gpt-4o"
     max_tokens: int = 1024
